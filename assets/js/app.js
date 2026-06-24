@@ -467,6 +467,17 @@ function loadServicesMenu() {
     }
 }
 
+// Load dashboard stats from localStorage
+function loadDashboardStats() {
+    const settings = JSON.parse(localStorage.getItem('dashboard_stats') || '{}');
+    
+    // Update Happy Clients on About page
+    const happyClientsEl = document.getElementById('statHappyClients');
+    if (happyClientsEl && settings.happyClients) {
+        happyClientsEl.textContent = settings.happyClients;
+    }
+}
+
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', async function() {
     // Load data from Firebase first, then render
@@ -482,6 +493,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     initHeroSlider();
     initMobileMenu();
     loadServicesMenu();
+    loadDashboardStats();
     
     // Listen for real-time updates from Firebase
     db.listenToYachts((yachts) => {

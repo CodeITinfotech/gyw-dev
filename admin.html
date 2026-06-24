@@ -316,6 +316,7 @@
         .stat-card .stat-icon.orange { background: rgba(245,166,35,0.1); color: var(--gold); }
         .stat-card .stat-icon.red { background: rgba(220,53,69,0.1); color: var(--danger); }
         .stat-card .stat-icon.purple { background: rgba(156,39,176,0.1); color: #9c27b0; }
+        .stat-card .stat-icon.teal { background: rgba(0,150,136,0.1); color: #009688; }
 
         .stat-card .stat-info h3 {
             font-size: 28px;
@@ -732,6 +733,16 @@
                             </div>
                             <span class="stat-link-hint">Click to manage →</span>
                         </div>
+                        <div class="stat-card editable-stat" onclick="editStatValue('happyClients')" style="cursor: pointer;" title="Click to edit">
+                            <div class="stat-icon teal">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="happyClientsValue">356+</h3>
+                                <p>Happy Clients</p>
+                            </div>
+                            <span class="stat-link-hint">Click to edit →</span>
+                        </div>
                         <div class="stat-card" onclick="showSection('inquiries')" style="cursor: pointer;">
                             <div class="stat-icon orange">
                                 <i class="fas fa-envelope-open-text"></i>
@@ -741,16 +752,6 @@
                                 <p>Total Inquiries</p>
                             </div>
                             <span class="stat-link-hint">Click to view →</span>
-                        </div>
-                        <div class="stat-card" onclick="showSection('categories')" style="cursor: pointer;">
-                            <div class="stat-icon purple">
-                                <i class="fas fa-folder"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3 id="totalCategories">0</h3>
-                                <p>Categories</p>
-                            </div>
-                            <span class="stat-link-hint">Click to manage →</span>
                         </div>
                     </div>
                     
@@ -1502,15 +1503,34 @@ Value|Best value for your investment..."></textarea>
             const yachtCount = document.querySelector('#section-dashboard .stat-card:first-child h3');
             if (yachtCount) yachtCount.textContent = yachts.length;
             
-            // Categories count
-            const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify([]));
-            const catCount = document.getElementById('totalCategories');
-            if (catCount) catCount.textContent = categories.filter(c => c.active !== false).length;
+            // Happy clients - load from localStorage or use default
+            const settings = JSON.parse(localStorage.getItem('dashboard_stats') || '{}');
+            const happyClientsEl = document.getElementById('happyClientsValue');
+            if (happyClientsEl) happyClientsEl.textContent = settings.happyClients || '356+';
             
             // Inquiries count
             const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
             const inqCount = document.getElementById('totalInquiries');
             if (inqCount) inqCount.textContent = submissions.length;
+        }
+        
+        // Edit stat value
+        function editStatValue(statType) {
+            let currentValue = '';
+            let label = '';
+            
+            if (statType === 'happyClients') {
+                currentValue = document.getElementById('happyClientsValue').textContent.replace('+', '');
+                label = 'Happy Clients';
+            }
+            
+            const newValue = prompt(`Edit ${label}:`, currentValue);
+            if (newValue !== null && newValue.trim() !== '') {
+                const settings = JSON.parse(localStorage.getItem('dashboard_stats') || '{}');
+                settings[statType] = newValue.trim() + '+';
+                localStorage.setItem('dashboard_stats', JSON.stringify(settings));
+                document.getElementById(statType + 'Value').textContent = newValue.trim() + '+';
+            }
         }
 
         // Extras Management
@@ -3130,24 +3150,28 @@ Value|Best value for your investment..."></textarea>
             };
         }
 
-        // Yacht save and toggle
-        if (typeof saveYacht === 'function') {
-            const originalSaveYacht = saveYacht;
-            window.saveYacht = function() {
-                originalSaveYacht();
-                const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
-                saveToFirebase('yachts', yachts);
-            };
-        }
+        // Yacht save and toggle - use setTimeout to ensure original functions are defined
+        setTimeout(function() {
+            if (typeof saveYacht === 'function') {
+                var originalSaveYacht = saveYacht;
+                window.saveYacht = function() {
+                    var result = originalSaveYacht();
+                    var yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+                    saveToFirebase('yachts', yachts);
+                    return result;
+                };
+            }
 
-        if (typeof toggleYachtStatus === 'function') {
-            const originalToggleYachtStatus = toggleYachtStatus;
-            window.toggleYachtStatus = function(id, disable) {
-                originalToggleYachtStatus(id, disable);
-                const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
-                saveToFirebase('yachts', yachts);
-            };
-        }
+            if (typeof toggleYachtStatus === 'function') {
+                var originalToggleYachtStatus = toggleYachtStatus;
+                window.toggleYachtStatus = function(id, disable) {
+                    var result = originalToggleYachtStatus(id, disable);
+                    var yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+                    saveToFirebase('yachts', yachts);
+                    return result;
+                };
+            }
+        }, 100);
     </script>
 </body>
 </html>
