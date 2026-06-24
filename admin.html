@@ -40,11 +40,19 @@
 
         /* Login Screen */
         .login-screen {
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+        }
+
+        body.logged-in .login-screen {
+            display: none !important;
+        }
+
+        body.logged-in .admin-dashboard {
+            display: block !important;
         }
 
         .login-box {
@@ -754,29 +762,53 @@
         function checkAuth() {
             const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
             if (isLoggedIn === 'true') {
+                document.body.classList.add('logged-in');
                 showDashboard();
             }
         }
 
         // Admin Login
         function adminLogin() {
-            const password = document.getElementById('adminPassword').value;
-            const savedPassword = localStorage.getItem('adminPassword') || DEFAULT_PASSWORD;
-            
-            if (password === savedPassword) {
-                sessionStorage.setItem('adminLoggedIn', 'true');
-                showDashboard();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
+            try {
+                const passwordInput = document.getElementById('adminPassword');
+                const errorMsg = document.getElementById('loginError');
+                const savedPassword = localStorage.getItem('adminPassword') || DEFAULT_PASSWORD;
+                
+                if (!passwordInput) {
+                    console.error('Password input not found');
+                    return;
+                }
+                
+                const password = passwordInput.value;
+                
+                if (password === savedPassword) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    showDashboard();
+                } else {
+                    if (errorMsg) {
+                        errorMsg.style.display = 'block';
+                    }
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            } catch (e) {
+                console.error('Login error:', e);
             }
         }
 
         // Show Dashboard
         function showDashboard() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').classList.add('active');
-            loadPoliciesIntoEditor();
-            loadReviewsEditor();
+            document.body.classList.add('logged-in');
+            
+            const loginScreen = document.getElementById('loginScreen');
+            const adminDashboard = document.getElementById('adminDashboard');
+            
+            if (loginScreen) loginScreen.style.display = 'none';
+            if (adminDashboard) adminDashboard.classList.add('active');
+            
+            // Load editors
+            if (typeof loadPoliciesIntoEditor === 'function') loadPoliciesIntoEditor();
+            if (typeof loadReviewsEditor === 'function') loadReviewsEditor();
         }
 
         // Admin Logout
@@ -787,13 +819,20 @@
 
         // Show Section
         function showSection(section) {
+            event.preventDefault();
             // Hide all sections
-            document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+            const sections = document.querySelectorAll('.admin-section');
+            sections.forEach(s => s.style.display = 'none');
             document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
             
             // Show selected section
-            document.getElementById('section-' + section).style.display = 'block';
-            event.target.classList.add('active');
+            const targetSection = document.getElementById('section-' + section);
+            if (targetSection) targetSection.style.display = 'block';
+            
+            // Mark nav as active
+            if (event.target && event.target.closest) {
+                event.target.closest('a').classList.add('active');
+            }
         }
 
         // Tab functionality
