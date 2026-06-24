@@ -60,22 +60,46 @@
         </div>
     </section>
 
-    <!-- Gallery Filters -->
+    <!-- Gallery Tabs -->
     <section class="section gallery-filters-section">
         <div class="container">
-            <div class="gallery-filters">
-                <button class="filter-btn active" data-filter="all">See All</button>
-                <button class="filter-btn" data-filter="yachts">Yachts</button>
-                <button class="filter-btn" data-filter="boats">Boats</button>
+            <div class="gallery-tabs">
+                <button class="gallery-tab active" data-tab="photos">
+                    <i class="fas fa-images"></i> Photos
+                </button>
+                <button class="gallery-tab" data-tab="reels">
+                    <i class="fas fa-video"></i> Reels
+                </button>
+                <button class="gallery-tab" data-tab="shorts">
+                    <i class="fab fa-youtube"></i> Shorts
+                </button>
             </div>
         </div>
     </section>
 
-    <!-- Gallery Grid -->
-    <section class="gallery-grid-section">
+    <!-- Photos Section -->
+    <section class="gallery-grid-section" id="photos-section">
         <div class="container">
-            <div class="gallery-grid" id="galleryGrid">
-                <!-- Gallery items will be loaded via JS -->
+            <div class="gallery-grid" id="photosGrid">
+                <!-- Photos will be loaded via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Reels Section -->
+    <section class="gallery-grid-section" id="reels-section" style="display: none;">
+        <div class="container">
+            <div class="gallery-grid reels-grid" id="reelsGrid">
+                <!-- Reels will be loaded via JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Shorts Section -->
+    <section class="gallery-grid-section" id="shorts-section" style="display: none;">
+        <div class="container">
+            <div class="gallery-grid shorts-grid" id="shortsGrid">
+                <!-- Shorts will be loaded via JS -->
             </div>
         </div>
     </section>

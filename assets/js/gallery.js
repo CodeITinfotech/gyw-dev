@@ -1,58 +1,181 @@
 /* ==========================================
-   GALLERY - JavaScript
+   GALLERY - JavaScript (Photos, Reels, Shorts)
    ========================================== */
 
-// Gallery data
-const GALLERY_ITEMS = [
-    { id: 1, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-1.jpg', category: 'yachts', title: 'Luxury Yacht Experience' },
-    { id: 2, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-2.jpg', category: 'yachts', title: 'Sunset Cruise' },
-    { id: 3, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-3.jpg', category: 'yachts', title: 'Party on Deck' },
-    { id: 4, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-4.jpg', category: 'yachts', title: 'Evening Party' },
-    { id: 5, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-5.jpg', category: 'yachts', title: 'Yacht Interior' },
-    { id: 6, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-6.jpg', category: 'yachts', title: 'Water Activities' },
-    { id: 7, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-7.jpg', category: 'yachts', title: 'Birthday Celebration' },
-    { id: 8, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-8.jpg', category: 'yachts', title: 'Corporate Event' },
-    { id: 9, src: 'https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-9.jpg', category: 'yachts', title: 'Romantic Cruise' }
-];
+// Default gallery data
+const DEFAULT_GALLERY = {
+    photos: `https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-1.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-2.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-3.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-4.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-5.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-6.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-7.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-8.jpg
+https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/gallery-9.jpg`,
+    reels: '',
+    shorts: ''
+};
 
-let currentFilter = 'all';
+let currentTab = 'photos';
 let currentLightboxIndex = 0;
+let currentItems = [];
 
-// Render gallery
-function renderGallery(filter = 'all') {
-    const grid = document.getElementById('galleryGrid');
+// Get gallery data from localStorage
+function getGalleryData() {
+    const stored = localStorage.getItem('gallery_items');
+    if (stored) {
+        return JSON.parse(stored);
+    }
+    return DEFAULT_GALLERY;
+}
+
+// Parse URLs from text (one per line)
+function parseUrls(text) {
+    if (!text) return [];
+    return text.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+}
+
+// Render photos
+function renderPhotos() {
+    const grid = document.getElementById('photosGrid');
     if (!grid) return;
     
-    const items = filter === 'all' 
-        ? GALLERY_ITEMS 
-        : GALLERY_ITEMS.filter(item => item.category === filter);
+    const gallery = getGalleryData();
+    const urls = parseUrls(gallery.photos);
+    currentItems = urls;
     
-    grid.innerHTML = items.map((item, index) => `
-        <div class="gallery-item" data-index="${index}">
-            <img src="${item.src}" alt="${item.title}" loading="lazy">
+    if (urls.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No photos yet. Add photos from the admin panel.</p>';
+        return;
+    }
+    
+    grid.innerHTML = urls.map((url, index) => `
+        <div class="gallery-item" onclick="openLightbox(${index})">
+            <img src="${url}" alt="Photo ${index + 1}" loading="lazy">
             <div class="gallery-item-overlay">
                 <i class="fas fa-expand"></i>
             </div>
         </div>
     `).join('');
+}
+
+// Render reels (videos)
+function renderReels() {
+    const grid = document.getElementById('reelsGrid');
+    if (!grid) return;
     
-    // Add click handlers
-    document.querySelectorAll('.gallery-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const index = parseInt(item.dataset.index);
-            openLightbox(filter === 'all' ? index : GALLERY_ITEMS.findIndex(i => i.src === items[index].src));
+    const gallery = getGalleryData();
+    const urls = parseUrls(gallery.reels);
+    currentItems = urls;
+    
+    if (urls.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No reels yet. Add video URLs from the admin panel.</p>';
+        return;
+    }
+    
+    grid.innerHTML = urls.map((url, index) => `
+        <div class="gallery-item video-item" onclick="openVideoLightbox(${index}, '${url}')">
+            <video src="${url}" muted></video>
+            <div class="gallery-item-overlay">
+                <i class="fas fa-play-circle"></i>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render shorts (YouTube embeds)
+function renderShorts() {
+    const grid = document.getElementById('shortsGrid');
+    if (!grid) return;
+    
+    const gallery = getGalleryData();
+    const urls = parseUrls(gallery.shorts);
+    currentItems = urls;
+    
+    if (urls.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No shorts yet. Add YouTube Shorts URLs from the admin panel.</p>';
+        return;
+    }
+    
+    grid.innerHTML = urls.map((url, index) => {
+        const videoId = extractYouTubeId(url);
+        const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+        return `
+            <div class="gallery-item video-item shorts-item">
+                <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+            </div>
+        `;
+    }).join('');
+}
+
+// Extract YouTube video ID
+function extractYouTubeId(url) {
+    const match = url.match(/(?:youtube\.com\/shorts\/|youtu\.be\/)([^&\?\/]+)/);
+    return match ? match[1] : '';
+}
+
+// Tab handling
+function initGalleryTabs() {
+    const tabs = document.querySelectorAll('.gallery-tab');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const tabName = tab.dataset.tab;
+            currentTab = tabName;
+            
+            // Hide all sections
+            document.getElementById('photos-section').style.display = 'none';
+            document.getElementById('reels-section').style.display = 'none';
+            document.getElementById('shorts-section').style.display = 'none';
+            
+            // Show selected section
+            document.getElementById(tabName + '-section').style.display = 'block';
+            
+            // Render content
+            if (tabName === 'photos') renderPhotos();
+            if (tabName === 'reels') renderReels();
+            if (tabName === 'shorts') renderShorts();
         });
     });
 }
 
-// Lightbox functions
+// Lightbox for photos
 function openLightbox(index) {
     const lightbox = document.getElementById('lightbox');
     const img = document.getElementById('lightboxImg');
     
     if (lightbox && img) {
         currentLightboxIndex = index;
-        img.src = GALLERY_ITEMS[index].src;
+        img.src = currentItems[index];
+        img.style.display = 'block';
+        img.parentElement.querySelector('video')?.remove();
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Lightbox for videos
+function openVideoLightbox(index, url) {
+    const lightbox = document.getElementById('lightbox');
+    const img = document.getElementById('lightboxImg');
+    
+    if (lightbox && img) {
+        currentLightboxIndex = index;
+        img.style.display = 'none';
+        img.parentElement.querySelector('video')?.remove();
+        
+        const video = document.createElement('video');
+        video.src = url;
+        video.controls = true;
+        video.autoplay = true;
+        video.style.maxWidth = '90vw';
+        video.style.maxHeight = '80vh';
+        img.parentElement.appendChild(video);
+        
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
     }
@@ -63,31 +186,21 @@ function closeLightbox() {
     if (lightbox) {
         lightbox.classList.remove('active');
         document.body.style.overflow = '';
+        // Remove video if present
+        lightbox.querySelector('video')?.remove();
     }
 }
 
 function nextImage() {
-    currentLightboxIndex = (currentLightboxIndex + 1) % GALLERY_ITEMS.length;
-    document.getElementById('lightboxImg').src = GALLERY_ITEMS[currentLightboxIndex].src;
+    currentLightboxIndex = (currentLightboxIndex + 1) % currentItems.length;
+    const img = document.getElementById('lightboxImg');
+    img.src = currentItems[currentLightboxIndex];
 }
 
 function prevImage() {
-    currentLightboxIndex = (currentLightboxIndex - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length;
-    document.getElementById('lightboxImg').src = GALLERY_ITEMS[currentLightboxIndex].src;
-}
-
-// Filter handling
-function initGalleryFilters() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderGallery(currentFilter);
-        });
-    });
+    currentLightboxIndex = (currentLightboxIndex - 1 + currentItems.length) % currentItems.length;
+    const img = document.getElementById('lightboxImg');
+    img.src = currentItems[currentLightboxIndex];
 }
 
 // Initialize lightbox controls
@@ -132,8 +245,8 @@ function initMobileMenu() {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
-    renderGallery();
-    initGalleryFilters();
+    renderPhotos();
+    initGalleryTabs();
     initLightbox();
     initMobileMenu();
 });

@@ -24,7 +24,15 @@
     <link rel="stylesheet" href="assets/css/style.css">
     
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚤</text></svg>">
+    <link rel="icon" href="https://goayachtworld.com/wp-content/uploads/sites/58/2023/05/icon-logo.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="https://goayachtworld.com/wp-content/uploads/sites/58/2023/05/icon-logo.svg">
+    
+    <!-- Redirect to admin if ?admin=true -->
+    <script>
+        if (window.location.search.includes('admin=true')) {
+            window.location.href = 'admin.html' + window.location.search;
+        }
+    </script>
 </head>
 <body>
     <!-- Header -->

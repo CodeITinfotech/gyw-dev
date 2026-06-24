@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="https://goayachtworld.com/wp-content/uploads/sites/58/2023/05/icon-logo.svg" type="image/svg+xml">
     <style>
         :root {
             --primary: #0077b6;
@@ -578,6 +579,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#" onclick="showSection('gallery')">
+                            <i class="fas fa-images"></i> Gallery
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" onclick="showSection('policies')">
                             <i class="fas fa-file-alt"></i> Policies
                         </a>
@@ -597,7 +603,7 @@
 
             <main class="admin-content">
                 <!-- Dashboard Section -->
-                <section id="section-dashboard" class="admin-section">
+                <section id="section-dashboard" class="admin-section" style="display: block;">
                     <h2><i class="fas fa-chart-pie"></i> Dashboard</h2>
                     
                     <div class="dashboard-stats">
@@ -722,6 +728,80 @@
                     </div>
                 </section>
 
+                <!-- Gallery Section -->
+                <section id="section-gallery" class="admin-section" style="display: none;">
+                    <h2><i class="fas fa-images"></i> Gallery Management</h2>
+                    <p style="color: var(--text-light); margin-bottom: 20px;">
+                        Manage Photos, Reels, and Shorts for the gallery page.
+                    </p>
+                    
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="photos-mgmt">Photos</button>
+                        <button class="tab-btn" data-tab="reels-mgmt">Reels</button>
+                        <button class="tab-btn" data-tab="shorts-mgmt">Shorts</button>
+                    </div>
+                    
+                    <!-- Photos Tab -->
+                    <div class="tab-content active" id="photos-mgmt-tab">
+                        <div class="alert" id="photosAlert"></div>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">
+                            Enter image URLs (one per line). Images will display in the Photos tab on the gallery page.
+                        </p>
+                        <div class="form-group">
+                            <label>Photo URLs</label>
+                            <textarea id="photosContent" style="min-height: 300px;" placeholder="Enter image URLs, one per line:&#10;https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="saveGalleryItem('photos')">
+                                <i class="fas fa-save"></i> Save Photos
+                            </button>
+                            <button class="btn btn-danger" onclick="resetGalleryItem('photos')">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Reels Tab -->
+                    <div class="tab-content" id="reels-mgmt-tab">
+                        <div class="alert" id="reelsAlert"></div>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">
+                            Enter video URLs for Reels (one per line).
+                        </p>
+                        <div class="form-group">
+                            <label>Reel Video URLs</label>
+                            <textarea id="reelsContent" style="min-height: 300px;" placeholder="Enter video URLs, one per line:&#10;https://example.com/reel1.mp4&#10;https://example.com/reel2.mp4"></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="saveGalleryItem('reels')">
+                                <i class="fas fa-save"></i> Save Reels
+                            </button>
+                            <button class="btn btn-danger" onclick="resetGalleryItem('reels')">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Shorts Tab -->
+                    <div class="tab-content" id="shorts-mgmt-tab">
+                        <div class="alert" id="shortsAlert"></div>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">
+                            Enter YouTube Shorts URLs (one per line).
+                        </p>
+                        <div class="form-group">
+                            <label>YouTube Shorts URLs</label>
+                            <textarea id="shortsContent" style="min-height: 300px;" placeholder="Enter YouTube Shorts URLs, one per line:&#10;https://www.youtube.com/shorts/abc123&#10;https://www.youtube.com/shorts/xyz789"></textarea>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="saveGalleryItem('shorts')">
+                                <i class="fas fa-save"></i> Save Shorts
+                            </button>
+                            <button class="btn btn-danger" onclick="resetGalleryItem('shorts')">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Reviews Section -->
                 <section id="section-reviews" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-star"></i> Google Reviews</h2>
@@ -762,7 +842,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.get('admin');
             
-            if (isAdmin !== 'true') {
+            // Allow access via ?admin=true parameter or via direct navigation from index
+            if (isAdmin !== 'true' && !sessionStorage.getItem('adminLoggedIn')) {
                 // Redirect to homepage if no admin parameter
                 window.location.href = 'index.html';
                 return false;
@@ -823,6 +904,7 @@
             // Load editors
             if (typeof loadPoliciesIntoEditor === 'function') loadPoliciesIntoEditor();
             if (typeof loadReviewsEditor === 'function') loadReviewsEditor();
+            if (typeof loadGalleryEditor === 'function') loadGalleryEditor();
         }
 
         // Admin Logout
@@ -1033,6 +1115,47 @@
                 { name: "Ananya Reddy", date: "2 weeks ago", rating: 5, text: "Dream yacht experience! Perfect for our anniversary celebration.", avatar: "AR" },
                 { name: "Karthik Nair", date: "1 week ago", rating: 4, text: "Great service overall. Would have given 5 stars but wish the booking process was slightly faster.", avatar: "KN" }
             ];
+        }
+
+        // Gallery Management
+        const DEFAULT_GALLERY = {
+            photos: '',
+            reels: '',
+            shorts: ''
+        };
+
+        function loadGalleryEditor() {
+            const gallery = JSON.parse(localStorage.getItem('gallery_items') || JSON.stringify(DEFAULT_GALLERY));
+            if (document.getElementById('photosContent')) {
+                document.getElementById('photosContent').value = gallery.photos;
+                document.getElementById('reelsContent').value = gallery.reels;
+                document.getElementById('shortsContent').value = gallery.shorts;
+            }
+        }
+
+        function saveGalleryItem(type) {
+            const content = document.getElementById(type + 'Content').value;
+            const gallery = JSON.parse(localStorage.getItem('gallery_items') || JSON.stringify(DEFAULT_GALLERY));
+            gallery[type] = content;
+            localStorage.setItem('gallery_items', JSON.stringify(gallery));
+            showGalleryAlert(type, 'Saved successfully!', 'success');
+        }
+
+        function resetGalleryItem(type) {
+            if (confirm('Reset ' + type + ' to empty?')) {
+                document.getElementById(type + 'Content').value = '';
+                saveGalleryItem(type);
+            }
+        }
+
+        function showGalleryAlert(type, message, type2) {
+            const alert = document.getElementById(type + 'Alert');
+            if (alert) {
+                alert.textContent = message;
+                alert.className = 'alert ' + type2;
+                alert.style.display = 'block';
+                setTimeout(() => alert.style.display = 'none', 3000);
+            }
         }
 
         // Change Password
