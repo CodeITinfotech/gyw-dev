@@ -449,8 +449,14 @@ function loadYachtDetails() {
     window.basePrice = yacht.price;
     window.selectedExtras = [];
     
-    // Render extras as checkboxes
-    renderExtras(getExtrasForYacht(yacht));
+    // Render extras as checkboxes (async)
+    getExtrasForYacht(yacht).then(extras => {
+        renderExtras(extras);
+        // Listen for real-time updates
+        listenToExtras((updatedExtras) => {
+            renderExtras(updatedExtras);
+        });
+    });
     
     // Render FAQ questions
     renderFAQ(getQuestionsForYacht(yacht));
@@ -665,9 +671,23 @@ function getDefaultQuestions() {
     ];
 }
 
-// Get extras from localStorage (admin managed) or fallback to defaults
-function getExtrasForYacht(yacht) {
-    // First check localStorage for admin-managed extras
+// Get extras from Firebase first, then localStorage, then defaults
+async function getExtrasForYacht(yacht) {
+    try {
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            const snapshot = await firebase.database().ref('extras').once('value');
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                // Save to localStorage for offline use
+                localStorage.setItem('yacht_extras', JSON.stringify(data));
+                return data.filter(e => e.active !== false);
+            }
+        }
+    } catch (error) {
+        console.log('Firebase not available for extras');
+    }
+    
+    // Fallback to localStorage for admin-managed extras
     const adminExtras = localStorage.getItem('yacht_extras');
     
     if (adminExtras) {
@@ -683,6 +703,19 @@ function getExtrasForYacht(yacht) {
     
     // Last fallback to defaults
     return getDefaultExtras();
+}
+
+// Listen for real-time extras updates
+function listenToExtras(callback) {
+    if (typeof firebase !== 'undefined' && firebase.database) {
+        firebase.database().ref('extras').on('value', snapshot => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                localStorage.setItem('yacht_extras', JSON.stringify(data));
+                callback(data.filter(e => e.active !== false));
+            }
+        });
+    }
 }
 
 // Get FAQ questions for yacht

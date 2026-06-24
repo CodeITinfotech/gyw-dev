@@ -10,26 +10,61 @@ const CONFIG = {
     dbName: 'GoaYachtWorldDB'
 };
 
-// Google Reviews - Load from localStorage or use defaults
+// Google Reviews - Load from Firebase first, fallback to localStorage, then defaults
 const DEFAULT_REVIEWS = [
-    { name: "Naveen Sharma", date: "2 weeks ago", rating: 5, text: "Absolutely outstanding video shoot experience! The team was incredibly professional, creative, and attentive to detail. Highly recommend!", avatar: "NS" },
-    { name: "Daniel Fernandes", date: "1 month ago", rating: 5, text: "Fantastic yacht experience! Clean, well-maintained vessels, friendly staff, easy booking, and affordable rates.", avatar: "DF" },
-    { name: "Manish Rajput", date: "3 weeks ago", rating: 5, text: "Five-star cruise experience, well-equipped boats, knowledgeable crew, and reasonable prices. Highly recommended!", avatar: "MR" },
-    { name: "Priya Patel", date: "1 week ago", rating: 5, text: "Amazing birthday celebration on the yacht! The team went above and beyond to make our special day perfect.", avatar: "PP" },
-    { name: "Amit Kumar", date: "2 months ago", rating: 5, text: "Best yacht rental service in Goa! Professional crew, beautiful yachts, and excellent customer service.", avatar: "AK" },
-    { name: "Sneha Gupta", date: "3 weeks ago", rating: 5, text: "Romantic sunset cruise was absolutely magical! Perfect for couples!", avatar: "SG" },
-    { name: "Rahul Mehta", date: "1 month ago", rating: 5, text: "Great experience for our family outing. Kids loved every moment.", avatar: "RM" },
-    { name: "Vikram Singh", date: "5 days ago", rating: 5, text: "Best decision to book with Goa Yacht World! Highly professional team!", avatar: "VS" },
-    { name: "Ananya Reddy", date: "2 weeks ago", rating: 5, text: "Dream yacht experience! Perfect for our anniversary celebration.", avatar: "AR" },
-    { name: "Karthik Nair", date: "1 week ago", rating: 4, text: "Great service overall. Would have given 5 stars but wish the booking process was slightly faster.", avatar: "KN" }
+    { name: "Naveen Sharma", date: "2 weeks ago", rating: 5, text: "Absolutely outstanding video shoot experience! The team was incredibly professional, creative, and attentive to detail. Highly recommend!", avatar: "NS", active: true },
+    { name: "Daniel Fernandes", date: "1 month ago", rating: 5, text: "Fantastic yacht experience! Clean, well-maintained vessels, friendly staff, easy booking, and affordable rates.", avatar: "DF", active: true },
+    { name: "Manish Rajput", date: "3 weeks ago", rating: 5, text: "Five-star cruise experience, well-equipped boats, knowledgeable crew, and reasonable prices. Highly recommended!", avatar: "MR", active: true },
+    { name: "Priya Patel", date: "1 week ago", rating: 5, text: "Amazing birthday celebration on the yacht! The team went above and beyond to make our special day perfect.", avatar: "PP", active: true },
+    { name: "Amit Kumar", date: "2 months ago", rating: 5, text: "Best yacht rental service in Goa! Professional crew, beautiful yachts, and excellent customer service.", avatar: "AK", active: true },
+    { name: "Sneha Gupta", date: "3 weeks ago", rating: 5, text: "Romantic sunset cruise was absolutely magical! Perfect for couples!", avatar: "SG", active: true },
+    { name: "Rahul Mehta", date: "1 month ago", rating: 5, text: "Great experience for our family outing. Kids loved every moment.", avatar: "RM", active: true },
+    { name: "Vikram Singh", date: "5 days ago", rating: 5, text: "Best decision to book with Goa Yacht World! Highly professional team!", avatar: "VS", active: true },
+    { name: "Ananya Reddy", date: "2 weeks ago", rating: 5, text: "Dream yacht experience! Perfect for our anniversary celebration.", avatar: "AR", active: true },
+    { name: "Karthik Nair", date: "1 week ago", rating: 4, text: "Great service overall. Would have given 5 stars but wish the booking process was slightly faster.", avatar: "KN", active: true }
 ];
 
-function getReviews() {
+// Initialize Google Reviews from Firebase/localStorage
+let GOOGLE_REVIEWS = [];
+
+// Load reviews from Firebase or fallback
+async function loadReviews() {
+    try {
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            const snapshot = await firebase.database().ref('reviews').once('value');
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                GOOGLE_REVIEWS = data.filter(r => r.active !== false);
+                localStorage.setItem('google_reviews', JSON.stringify(data));
+                return GOOGLE_REVIEWS;
+            }
+        }
+    } catch (error) {
+        console.log('Firebase not available, using localStorage');
+    }
+    // Fallback to localStorage
     const stored = localStorage.getItem('google_reviews');
-    return stored ? JSON.parse(stored) : DEFAULT_REVIEWS;
+    GOOGLE_REVIEWS = stored ? JSON.parse(stored).filter(r => r.active !== false) : DEFAULT_REVIEWS.filter(r => r.active !== false);
+    return GOOGLE_REVIEWS;
 }
 
-const GOOGLE_REVIEWS = getReviews();
+// Listen for real-time updates from Firebase
+function listenToReviews(callback) {
+    if (typeof firebase !== 'undefined' && firebase.database) {
+        firebase.database().ref('reviews').on('value', snapshot => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                GOOGLE_REVIEWS = data.filter(r => r.active !== false);
+                localStorage.setItem('google_reviews', JSON.stringify(data));
+                callback(GOOGLE_REVIEWS);
+            }
+        });
+    }
+}
+
+function getReviews() {
+    return GOOGLE_REVIEWS.length > 0 ? GOOGLE_REVIEWS : DEFAULT_REVIEWS.filter(r => r.active !== false);
+}
 
 let displayedReviews = 0;
 const REVIEWS_PER_PAGE = 6;
@@ -76,52 +111,103 @@ const DEFAULT_YACHTS = [
     { id: 'yacht-035', name: 'Lady M', type: 'Yacht', location: 'Old Goa', capacity: 22, price: 40000, featured: false, images: ['assets/images/service-yacht-35.jpg'] }
 ];
 
-// Database class
+// Database class - Reads from Firebase, falls back to localStorage
 class YachtDatabase {
     constructor() {
         this.yachtsKey = 'yachts';
         this.settingsKey = 'settings';
-        this.init();
+        this.yachtsCache = null;
+        this.categoriesCache = null;
     }
 
-    init() {
-        if (!localStorage.getItem(this.yachtsKey)) {
-            this.seedData();
+    // Load yachts from Firebase first
+    async loadYachts() {
+        try {
+            if (typeof firebase !== 'undefined' && firebase.database) {
+                const snapshot = await firebase.database().ref('yachts').once('value');
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    this.yachtsCache = data;
+                    localStorage.setItem(this.yachtsKey, JSON.stringify(data));
+                    return this.yachtsCache;
+                }
+            }
+        } catch (error) {
+            console.log('Firebase not available for yachts');
         }
-        if (!localStorage.getItem(this.settingsKey)) {
-            this.saveSettings({
-                whatsappNumber: CONFIG.whatsappNumber,
-                bookingUrl: CONFIG.bookingUrl,
-                siteName: CONFIG.siteName
+        // Fallback to localStorage
+        const data = localStorage.getItem(this.yachtsKey);
+        this.yachtsCache = data ? JSON.parse(data) : DEFAULT_YACHTS;
+        return this.yachtsCache;
+    }
+
+    // Listen for real-time yacht updates
+    listenToYachts(callback) {
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            firebase.database().ref('yachts').on('value', snapshot => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    this.yachtsCache = data;
+                    localStorage.setItem(this.yachtsKey, JSON.stringify(data));
+                    callback(this.getActiveYachts());
+                }
             });
         }
     }
 
-    seedData() {
-        localStorage.setItem(this.yachtsKey, JSON.stringify(DEFAULT_YACHTS));
+    getActiveYachts() {
+        if (!this.yachtsCache) return DEFAULT_YACHTS.filter(y => !y.disabled);
+        return this.yachtsCache.filter(y => !y.disabled);
     }
 
     getAllYachts() {
-        const data = localStorage.getItem(this.yachtsKey);
-        if (data) {
-            const parsed = JSON.parse(data);
-            // If localStorage has old data without location, merge with defaults
-            if (parsed.length > 0 && !parsed[0].location) {
-                const withLocation = parsed.map(yacht => {
-                    const defaultYacht = DEFAULT_YACHTS.find(d => d.name === yacht.name);
-                    return { ...yacht, location: defaultYacht?.location || 'Goa, India' };
-                });
-                return withLocation.filter(y => !y.disabled);
-            }
-            return parsed.filter(y => !y.disabled);
-        }
-        return DEFAULT_YACHTS.filter(y => !y.disabled);
+        return this.getActiveYachts();
     }
 
     getFeaturedYachts() {
-        return this.getAllYachts().filter(y => y.featured);
+        return this.getActiveYachts().filter(y => y.featured);
     }
 
+    // Categories from Firebase
+    async loadCategories() {
+        try {
+            if (typeof firebase !== 'undefined' && firebase.database) {
+                const snapshot = await firebase.database().ref('categories').once('value');
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    this.categoriesCache = data;
+                    localStorage.setItem('yacht_categories', JSON.stringify(data));
+                    return this.categoriesCache.filter(c => c.active !== false);
+                }
+            }
+        } catch (error) {
+            console.log('Firebase not available for categories');
+        }
+        // Fallback
+        const stored = localStorage.getItem('yacht_categories');
+        this.categoriesCache = stored ? JSON.parse(stored) : DEFAULT_CATEGORIES_JS;
+        return this.categoriesCache.filter(c => c.active !== false);
+    }
+
+    listenToCategories(callback) {
+        if (typeof firebase !== 'undefined' && firebase.database) {
+            firebase.database().ref('categories').on('value', snapshot => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    this.categoriesCache = data;
+                    localStorage.setItem('yacht_categories', JSON.stringify(data));
+                    callback(this.categoriesCache.filter(c => c.active !== false));
+                }
+            });
+        }
+    }
+
+    getCategories() {
+        if (!this.categoriesCache) return DEFAULT_CATEGORIES_JS.filter(c => c.active !== false);
+        return this.categoriesCache.filter(c => c.active !== false);
+    }
+
+    // Settings
     saveSettings(settings) {
         localStorage.setItem(this.settingsKey, JSON.stringify(settings));
     }
@@ -382,12 +468,39 @@ function loadServicesMenu() {
 }
 
 // Initialize on DOM load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Load data from Firebase first, then render
+    await Promise.all([
+        db.loadYachts(),
+        db.loadCategories(),
+        loadReviews()
+    ]);
+    
+    // Render initial content
     renderYachts();
     renderReviews();
     initHeroSlider();
     initMobileMenu();
     loadServicesMenu();
+    
+    // Listen for real-time updates from Firebase
+    db.listenToYachts((yachts) => {
+        if (document.getElementById('yachtsGrid')) {
+            renderYachts();
+        }
+    });
+    
+    db.listenToCategories((categories) => {
+        if (document.querySelector('.services-dropdown')) {
+            loadServicesMenu();
+        }
+    });
+    
+    listenToReviews((reviews) => {
+        if (document.querySelector('.reviews-grid')) {
+            renderReviews();
+        }
+    });
     
     // Load more reviews button
     const loadMoreBtn = document.getElementById('loadMoreReviews');

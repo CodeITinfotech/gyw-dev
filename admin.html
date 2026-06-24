@@ -1435,8 +1435,8 @@ Value|Best value for your investment..."></textarea>
             }
             
             // Initialize default data if not exists or if incomplete
-            if (!localStorage.getItem('yacht_items') || JSON.parse(localStorage.getItem('yacht_items') || []).length < 35) {
-                localStorage.setItem('yacht_items', JSON.stringify(DEFAULT_YACHTS));
+            if (!localStorage.getItem('yachts') || JSON.parse(localStorage.getItem('yachts') || []).length < 35) {
+                localStorage.setItem('yachts', JSON.stringify(DEFAULT_YACHTS));
             }
             if (!localStorage.getItem('yacht_categories')) {
                 localStorage.setItem('yacht_categories', JSON.stringify(DEFAULT_CATEGORIES));
@@ -1715,7 +1715,7 @@ Value|Best value for your investment..."></textarea>
         function resetAllData() {
             if (!confirm('This will reset ALL data including yachts, categories, extras, questions, and settings. Continue?')) return;
             
-            localStorage.setItem('yacht_items', JSON.stringify(DEFAULT_YACHTS));
+            localStorage.setItem('yachts', JSON.stringify(DEFAULT_YACHTS));
             localStorage.setItem('yacht_categories', JSON.stringify(DEFAULT_CATEGORIES));
             localStorage.setItem('yacht_extras', JSON.stringify(DEFAULT_EXTRAS));
             localStorage.setItem('yacht_questions', JSON.stringify(DEFAULT_QUESTIONS));
@@ -2278,7 +2278,7 @@ Value|Best value for your investment..."></textarea>
 
         function loadYachtsEditor() {
             const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify(DEFAULT_CATEGORIES));
-            const yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
             
             // Populate category filter dropdown
             const filter = document.getElementById('yachtCategoryFilter');
@@ -2370,22 +2370,22 @@ Value|Best value for your investment..."></textarea>
         }
 
         function toggleYachtStatus(yachtId, disable) {
-            const yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
             const yacht = yachts.find(y => y.id === yachtId);
             if (yacht) {
                 yacht.disabled = disable;
-                localStorage.setItem('yacht_items', JSON.stringify(yachts));
+                localStorage.setItem('yachts', JSON.stringify(yachts));
                 loadYachtsEditor();
                 showAlert(`Yacht ${disable ? 'disabled' : 'enabled'} successfully!`, 'success');
             }
         }
 
         function toggleFeatured(yachtId, isFeatured) {
-            const yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
             const yacht = yachts.find(y => y.id === yachtId);
             if (yacht) {
                 yacht.featured = isFeatured;
-                localStorage.setItem('yacht_items', JSON.stringify(yachts));
+                localStorage.setItem('yachts', JSON.stringify(yachts));
                 showAlert(`Yacht ${isFeatured ? 'marked as featured' : 'removed from featured'}`, 'success');
             }
         }
@@ -2430,9 +2430,9 @@ Value|Best value for your investment..."></textarea>
 
         function deleteYacht(id) {
             if (!confirm('Delete this yacht?')) return;
-            let yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+            let yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
             yachts = yachts.filter(y => y.id !== id);
-            localStorage.setItem('yacht_items', JSON.stringify(yachts));
+            localStorage.setItem('yachts', JSON.stringify(yachts));
             loadYachtsEditor();
             showAlert('Yacht deleted!', 'success');
         }
@@ -2461,7 +2461,7 @@ Value|Best value for your investment..."></textarea>
                 title.innerHTML = '<i class="fas fa-edit"></i> Edit Yacht';
                 document.getElementById('editYachtId').value = yachtId;
                 
-                const yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+                const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
                 const yacht = yachts.find(y => y.id === yachtId);
                 if (yacht) {
                     document.getElementById('yachtName').value = yacht.name;
@@ -2751,7 +2751,7 @@ Value|Best value for your investment..."></textarea>
                 return;
             }
             
-            const yachts = JSON.parse(localStorage.getItem('yacht_items') || JSON.stringify(DEFAULT_YACHTS));
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
             const editId = document.getElementById('editYachtId').value;
             
             const yachtData = {
@@ -2775,7 +2775,7 @@ Value|Best value for your investment..."></textarea>
                 yachts.push(yachtData);
             }
             
-            localStorage.setItem('yacht_items', JSON.stringify(yachts));
+            localStorage.setItem('yachts', JSON.stringify(yachts));
             cancelYachtForm();
             loadYachtsEditor();
             showAlert('Yacht saved successfully!', 'success');
@@ -3002,6 +3002,79 @@ Value|Best value for your investment..."></textarea>
             loadContactsEditor();
             showAlert('All contacts cleared', 'success');
         }
+
+        // Firebase Sync - Save to Firebase when data changes
+        async function saveToFirebase(collection, data) {
+            try {
+                await firebase.database().ref(collection).set(data);
+                localStorage.setItem(collection, JSON.stringify(data)); // Backup to localStorage
+                return true;
+            } catch (error) {
+                console.error('Firebase sync error:', error);
+                // Fallback to localStorage
+                localStorage.setItem(collection, JSON.stringify(data));
+                return false;
+            }
+        }
+
+        // Update saveCategoryInline to sync with Firebase
+        const originalSaveCategoryInline = saveCategoryInline;
+        saveCategoryInline = async function(id) {
+            originalSaveCategoryInline(id);
+            // Sync to Firebase
+            const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify(DEFAULT_CATEGORIES));
+            await saveToFirebase('categories', categories);
+        };
+
+        // Update saveExtraInline to sync with Firebase
+        const originalSaveExtraInline = saveExtraInline;
+        saveExtraInline = async function(index) {
+            originalSaveExtraInline(index);
+            const extras = JSON.parse(localStorage.getItem('yacht_extras') || JSON.stringify(DEFAULT_EXTRAS));
+            await saveToFirebase('extras', extras);
+        };
+
+        // Update toggle functions to sync with Firebase
+        const originalToggleCategoryStatus = toggleCategoryStatus;
+        toggleCategoryStatus = async function(id) {
+            originalToggleCategoryStatus(id);
+            const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify(DEFAULT_CATEGORIES));
+            await saveToFirebase('categories', categories);
+        };
+
+        const originalToggleExtraStatus = toggleExtraStatus;
+        toggleExtraStatus = async function(index) {
+            originalToggleExtraStatus(index);
+            const extras = JSON.parse(localStorage.getItem('yacht_extras') || JSON.stringify(DEFAULT_EXTRAS));
+            await saveToFirebase('extras', extras);
+        };
+
+        const originalToggleReviewStatus = toggleReviewStatus;
+        toggleReviewStatus = async function(index) {
+            originalToggleReviewStatus(index);
+            const reviews = JSON.parse(localStorage.getItem('google_reviews') || JSON.stringify(getDefaultReviews()));
+            await saveToFirebase('reviews', reviews);
+        };
+
+        // Yacht save and toggle
+        const originalSaveYacht = saveYacht;
+        saveYacht = async function() {
+            originalSaveYacht();
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+            await saveToFirebase('yachts', yachts);
+        };
+
+        const originalToggleYachtStatus = toggleYachtStatus;
+        toggleYachtStatus = async function(id, disable) {
+            originalToggleYachtStatus(id, disable);
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+            await saveToFirebase('yachts', yachts);
+        };
     </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
 </body>
 </html>
