@@ -103,7 +103,19 @@ class YachtDatabase {
 
     getAllYachts() {
         const data = localStorage.getItem(this.yachtsKey);
-        return data ? JSON.parse(data) : [];
+        if (data) {
+            const parsed = JSON.parse(data);
+            // If localStorage has old data without location, merge with defaults
+            if (parsed.length > 0 && !parsed[0].location) {
+                const withLocation = parsed.map(yacht => {
+                    const defaultYacht = DEFAULT_YACHTS.find(d => d.name === yacht.name);
+                    return { ...yacht, location: defaultYacht?.location || 'Goa, India' };
+                });
+                return withLocation;
+            }
+            return parsed;
+        }
+        return DEFAULT_YACHTS;
     }
 
     getFeaturedYachts() {

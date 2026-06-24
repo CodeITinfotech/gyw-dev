@@ -628,11 +628,19 @@ function getExtrasForYacht(yacht) {
 
 // Get FAQ questions for yacht
 function getQuestionsForYacht(yacht) {
+    // First check localStorage for admin-selected questions
+    const storedQuestions = localStorage.getItem('yacht_questions');
+    
     if (yacht.questions && yacht.questions.length > 0) {
-        const allQuestions = JSON.parse(localStorage.getItem('yacht_questions') || JSON.stringify(getDefaultQuestions()));
-        return allQuestions.filter(q => yacht.questions.includes(q.question));
+        // Use questions from localStorage (admin curated) filtered by yacht selection
+        const allQuestions = storedQuestions ? JSON.parse(storedQuestions) : getDefaultQuestions();
+        const filtered = allQuestions.filter(q => yacht.questions.includes(q.question));
+        // If filtered results exist, return them
+        if (filtered.length > 0) return filtered;
     }
-    return [];
+    
+    // If no questions selected for this yacht, show default questions
+    return getDefaultQuestions();
 }
 
 // Initialize

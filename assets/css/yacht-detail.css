@@ -286,7 +286,7 @@
 /* FAQ Section */
 .yacht-faq {
     margin-bottom: 60px;
-    text-align: center;
+    padding: 0 20px;
 }
 
 .yacht-faq h2 {
@@ -298,7 +298,7 @@
 }
 
 .faq-item {
-    background: var(--bg-light);
+    background: var(--white);
     border-radius: 12px;
     margin-bottom: 15px;
     overflow: hidden;
@@ -306,28 +306,38 @@
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #eee;
 }
 
 .faq-item h3 {
     font-size: 1rem;
     font-weight: 600;
-    padding: 20px 25px;
+    padding: 18px 25px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: var(--text);
-    transition: background 0.3s;
+    transition: background 0.3s, color 0.3s;
+    margin: 0;
 }
 
 .faq-item h3:hover {
-    background: #e8e8e8;
+    background: #f5f5f5;
+    color: var(--primary);
+}
+
+.faq-item.active h3 {
+    background: #f5f5f5;
+    color: var(--primary);
 }
 
 .faq-item h3 i {
     transition: transform 0.3s;
     color: var(--primary);
     flex-shrink: 0;
+    margin-left: 15px;
 }
 
 .faq-item.active h3 i {
@@ -342,14 +352,15 @@
 }
 
 .faq-item.active .faq-answer {
-    max-height: 300px;
+    max-height: 500px;
 }
 
 .faq-answer p {
-    padding: 15px 25px 20px;
+    padding: 15px 25px 25px;
     font-size: 15px;
     line-height: 1.7;
     color: var(--text-light);
+    margin: 0;
 }
 
 /* How It Works */
