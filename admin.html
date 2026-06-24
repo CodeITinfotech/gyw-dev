@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Goa Yacht World</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0077b6;
+            --primary-dark: #005f8f;
+            --secondary: #023e8a;
+            --whatsapp: #25d366;
+            --white: #ffffff;
+            --bg-light: #f8f9fa;
+            --text: #333333;
+            --text-light: #666666;
+            --danger: #dc3545;
+            --success: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-header .btn-logout {
+            background: var(--primary);
+            color: var(--white);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .admin-header .btn-logout:hover {
+            background: var(--primary-dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .admin-nav {
+            background: var(--white);
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .admin-nav ul {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .admin-nav a {
+            padding: 10px 20px;
+            background: var(--bg-light);
+            color: var(--text);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .admin-section {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .admin-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 400px;
+            resize: vertical;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tab-container {
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .policy-preview {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #eee;
+        }
+
+        .policy-preview h3 {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-nav ul {
+                flex-direction: column;
+            }
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+            .tab-btn {
+                border: 1px solid #eee;
+                border-radius: 8px;
+            }
+            .tab-btn.active::after {
+                display: none;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <h1><i class="fas fa-ship"></i> Goa Yacht World Admin</h1>
+            <a href="index.html" class="btn-logout"><i class="fas fa-home"></i> View Site</a>
+        </div>
+    </header>
+
+    <nav class="admin-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#settings" class="active"><i class="fas fa-cog"></i> Website Settings</a></li>
+                <li><a href="#policies"><i class="fas fa-file-alt"></i> Policies</a></li>
+                <li><a href="#yachts"><i class="fas fa-ship"></i> Yachts</a></li>
+                <li><a href="#reviews"><i class="fas fa-star"></i> Reviews</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Policies Section -->
+        <section class="admin-section" id="policies-section">
+            <h2><i class="fas fa-file-alt"></i> Policy Management</h2>
+            
+            <div class="alert" id="policyAlert"></div>
+
+            <div class="tab-container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="privacy">Privacy Policy</button>
+                    <button class="tab-btn" data-tab="cancellation">Cancellation Policy</button>
+                    <button class="tab-btn" data-tab="refund">Refund Policy</button>
+                </div>
+
+                <!-- Privacy Policy Tab -->
+                <div class="tab-content active" id="privacy-tab">
+                    <p class="help-text">Use HTML tags for formatting: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;div class="contact-box"&gt;</p>
+                    <div class="form-group">
+                        <label for="privacyContent">Privacy Policy Content</label>
+                        <textarea id="privacyContent" placeholder="Enter privacy policy content with HTML..."></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="savePolicy('privacy')">
+                            <i class="fas fa-save"></i> Save Privacy Policy
+                        </button>
+                        <button class="btn btn-success" onclick="previewPolicy('privacy')">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-danger" onclick="resetPolicy('privacy')">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                    <div class="policy-preview" id="privacy-preview" style="display:none;">
+                        <h3>Preview:</h3>
+                        <div id="privacyPreviewContent"></div>
+                    </div>
+                </div>
+
+                <!-- Cancellation Policy Tab -->
+                <div class="tab-content" id="cancellation-tab">
+                    <p class="help-text">Use HTML tags for formatting: &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;div class="contact-box"&gt;</p>
+                    <div class="form-group">
+                        <label for="cancellationContent">Cancellation Policy Content</label>
+                        <textarea id="cancellationContent" placeholder="Enter cancellation policy content with HTML..."></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="savePolicy('cancellation')">
+                            <i class="fas fa-save"></i> Save Cancellation Policy
+                        </button>
+                        <button class="btn btn-success" onclick="previewPolicy('cancellation')">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-danger" onclick="resetPolicy('cancellation')">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                    <div class="policy-preview" id="cancellation-preview" style="display:none;">
+                        <h3>Preview:</h3>
+                        <div id="cancellationPreviewContent"></div>
+                    </div>
+                </div>
+
+                <!-- Refund Policy Tab -->
+                <div class="tab-content" id="refund-tab">
+                    <p class="help-text">Use HTML tags for formatting: &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;div class="contact-box"&gt;</p>
+                    <div class="form-group">
+                        <label for="refundContent">Refund Policy Content</label>
+                        <textarea id="refundContent" placeholder="Enter refund policy content with HTML..."></textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="savePolicy('refund')">
+                            <i class="fas fa-save"></i> Save Refund Policy
+                        </button>
+                        <button class="btn btn-success" onclick="previewPolicy('refund')">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button class="btn btn-danger" onclick="resetPolicy('refund')">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                    <div class="policy-preview" id="refund-preview" style="display:none;">
+                        <h3>Preview:</h3>
+                        <div id="refundPreviewContent"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/policy-loader.js"></script>
+    <script>
+        // Default policies
+        const DEFAULT_POLICIES = {
+            privacy: `<p>Welcome to Goa Yacht World! This Privacy Policy outlines how we collect, use, and safeguard your personal information when you visit our website, https://goayachtworld.com (the "Site"). By using our services, you agree to the terms outlined in this policy.</p>
+
+<h2>Information We Collect</h2>
+<p>We may collect various types of information for the purpose of providing and improving our services:</p>
+<ul>
+<li><strong>Personal Information:</strong> When you make a booking or interact with our site, we may collect personal information such as your name, contact details, and payment information.</li>
+<li><strong>Usage Data:</strong> We gather information about how you navigate and interact with our website. This includes IP addresses, browser details, and pages visited.</li>
+</ul>
+
+<h2>How We Use Your Information</h2>
+<p>We use the collected information for:</p>
+<ul>
+<li><strong>Service Provision:</strong> To process bookings, respond to inquiries, and provide customer support.</li>
+<li><strong>Improvement of Services:</strong> Analyzing usage data helps us enhance and tailor our services to better meet your needs.</li>
+<li><strong>Communication:</strong> Keeping you informed about promotions, updates, and relevant information if you have opted to receive such communications.</li>
+</ul>
+
+<h2>Data Security</h2>
+<p>We prioritize the security of your data. While we take reasonable measures to protect your information, please be aware that no online transmission or storage method can guarantee absolute security.</p>
+
+<h2>Disclosure of Information</h2>
+<p>We may share your personal information in the following circumstances:</p>
+<ul>
+<li><strong>Legal Compliance:</strong> If required by law or in response to valid legal processes.</li>
+<li><strong>Service Providers:</strong> With trusted third-party service providers who assist us in delivering our services.</li>
+</ul>
+
+<h2>Your Choices and Rights</h2>
+<p>You have the right to access, correct, or delete your personal information. You can manage your communication preferences by contacting us.</p>
+
+<h2>Cookies and Tracking Technologies</h2>
+<p>Our website may use cookies and similar technologies to enhance your experience. You can adjust your browser settings to refuse cookies, but this may impact your ability to access certain features.</p>
+
+<h2>Changes to this Privacy Policy</h2>
+<p>We reserve the right to update our Privacy Policy. Any changes will be effective upon posting the updated policy on the website. We encourage you to review this page periodically.</p>
+
+<h2>Contact Us</h2>
+<p>If you have any questions or concerns about our Privacy Policy, please contact us:</p>
+<div class="contact-box">
+<p><strong>Goa Yacht World</strong></p>
+<p>R-2, 4th Floor, Satt Adhar Champers<br>Panaji, Goa - 403001</p>
+<p><strong>Phone:</strong> +91 8446275985 | +91 8446205985</p>
+<p><strong>Email:</strong> support@goayachtworld.com</p>
+</div>`,
+
+            cancellation: `<p>Should you wish to cancel your booking, we would appreciate if you could inform us <strong>Ten days in advance</strong> to avail of Total Refund of your deposit.</p>
+
+<p>If the government of Goa declares a warning sign to sail due to heavy incessant rain we stop operations and in that case we either ask you to reschedule the ride or return the advance payment.</p>
+
+<p>Also if it's raining heavily we will ask you to reschedule the ride so that you can have a good experience.</p>
+
+<p>You will also be refunded your whole deposit if your ride is cancelled from our side due to <strong>Technical reasons</strong>.</p>
+
+<div class="contact-box">
+<p><strong>Important Notes:</strong></p>
+<ul>
+<li>Kindly carry the Aadhar card of at least 1 person, preferably the 1 in whose name the ride is booked.</li>
+<li>Water, Soft Drinks, Soda, Ice, chips and namkeen are Complementary.</li>
+<li>Please reach the Jetty 15 minutes prior to the ride in order to move on time.</li>
+</ul>
+</div>`,
+
+            refund: `<h3>Cancellation by Customer</h3>
+<ul>
+<li>To qualify for a <strong>Total Refund</strong> of your deposit, kindly notify us at least <strong>Ten days in advance</strong> of your scheduled booking date.</li>
+<li>Refunds will not be processed for cancellations made within less than Ten days of the booking date.</li>
+</ul>
+
+<h3>Weather-Related Cancellations</h3>
+<p>In the event of a government-issued warning sign preventing sailing due to heavy incessant rain in Goa, Goa Yacht World reserves the right to:</p>
+<ol>
+<li>Offer the option to reschedule the ride.</li>
+<li>Provide a full refund of the advance payment.</li>
+</ol>
+
+<h3>Rainy Weather Policy</h3>
+<p>In cases of heavy rainfall during the scheduled ride:</p>
+<ol>
+<li>Goa Yacht World may suggest rescheduling the ride for a better experience.</li>
+<li>No additional charges will be applied for rescheduling due to adverse weather conditions.</li>
+</ol>
+
+<h3>Technical Cancellations</h3>
+<p>If Goa Yacht World cancels a ride due to technical reasons, customers will be entitled to a full refund of their deposit.</p>
+
+<div class="contact-box">
+<p><strong>Note:</strong> Refunds will be processed using the same payment method used for the booking. Please allow a reasonable processing time for the refund to reflect in your account. Goa Yacht World reserves the right to modify this refund policy with or without notice.</p>
+</div>`
+        };
+
+        // Load policies into textarea
+        function loadPoliciesIntoEditor() {
+            const policies = JSON.parse(localStorage.getItem('website_policies') || JSON.stringify(DEFAULT_POLICIES));
+            
+            document.getElementById('privacyContent').value = policies.privacy || DEFAULT_POLICIES.privacy;
+            document.getElementById('cancellationContent').value = policies.cancellation || DEFAULT_POLICIES.cancellation;
+            document.getElementById('refundContent').value = policies.refund || DEFAULT_POLICIES.refund;
+        }
+
+        // Save policy
+        function savePolicy(type) {
+            const content = document.getElementById(type + 'Content').value;
+            const policies = JSON.parse(localStorage.getItem('website_policies') || JSON.stringify(DEFAULT_POLICIES));
+            policies[type] = content;
+            localStorage.setItem('website_policies', JSON.stringify(policies));
+            
+            showAlert('Policy saved successfully! Changes are live on the website.', 'success');
+        }
+
+        // Reset policy to default
+        function resetPolicy(type) {
+            if (confirm('Are you sure you want to reset this policy to default? This cannot be undone.')) {
+                document.getElementById(type + 'Content').value = DEFAULT_POLICIES[type];
+                savePolicy(type);
+            }
+        }
+
+        // Preview policy
+        function previewPolicy(type) {
+            const content = document.getElementById(type + 'Content').value;
+            const previewDiv = document.getElementById(type + '-preview');
+            const previewContent = document.getElementById(type + 'PreviewContent');
+            
+            previewContent.innerHTML = content;
+            previewDiv.style.display = 'block';
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alert = document.getElementById('policyAlert');
+            alert.textContent = message;
+            alert.className = 'alert ' + type;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        // Tab functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        // Initialize
+        loadPoliciesIntoEditor();
+    </script>
+</body>
+</html>
