@@ -682,6 +682,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="#" onclick="showSection('contacts')">
+                            <i class="fas fa-envelope"></i> Contacts
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" onclick="showSection('settings')">
                             <i class="fas fa-cog"></i> Settings
                         </a>
@@ -1256,6 +1261,26 @@ Value|Best value for your investment..."></textarea>
                     </div>
                     
                     <div id="reviewsEditor"></div>
+                </section>
+
+                <!-- Contact Submissions Section -->
+                <section id="section-contacts" class="admin-section" style="display: none;">
+                    <h2><i class="fas fa-envelope"></i> Contact Submissions</h2>
+                    <p style="color: var(--text-light); margin-bottom: 20px;">
+                        Messages received from the contact form on the website.
+                    </p>
+                    
+                    <div class="alert" id="contactsAlert"></div>
+                    
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 style="margin: 0;"><i class="fas fa-list"></i> All Submissions</h3>
+                            <button class="btn btn-sm btn-danger" onclick="clearContactSubmissions()">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                        </div>
+                        <div id="contactsList"></div>
+                    </div>
                 </section>
 
                 <!-- Settings Section -->
@@ -2736,6 +2761,82 @@ Value|Best value for your investment..."></textarea>
 
         // Initialize
         checkAuth();
+
+        // Contact Submissions
+        function loadContactsEditor() {
+            const container = document.getElementById('contactsList');
+            if (!container) return;
+            
+            const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+            
+            if (submissions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-light);">
+                        <i class="fas fa-inbox" style="font-size: 48px; opacity: 0.3; margin-bottom: 15px;"></i>
+                        <p>No contact submissions yet.</p>
+                        <p style="font-size: 0.9rem;">Submissions will appear here when visitors use the contact form.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const subjectLabels = {
+                'yacht-booking': 'Yacht Booking Inquiry',
+                'corporate-event': 'Corporate Event',
+                'birthday-party': 'Birthday Party',
+                'sunset-cruise': 'Sunset Cruise',
+                'other': 'Other'
+            };
+            
+            container.innerHTML = submissions.map((s, i) => `
+                <div style="background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <div>
+                            <h4 style="margin: 0 0 5px 0; color: #333;">${s.name}</h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: #666;">
+                                <i class="fas fa-envelope"></i> ${s.email} 
+                                ${s.phone ? ` | <i class="fas fa-phone"></i> ${s.phone}` : ''}
+                            </p>
+                            <span style="display: inline-block; background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-top: 8px;">
+                                ${subjectLabels[s.subject] || s.subject}
+                            </span>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.8rem; color: #999;">${new Date(s.date).toLocaleString()}</span>
+                            <button class="btn btn-sm btn-danger" onclick="deleteContact(${i})" style="margin-top: 8px; padding: 5px 10px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-light); padding: 15px; border-radius: 8px;">
+                        <p style="margin: 0; color: #555; line-height: 1.6;">${s.message}</p>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <a href="https://wa.me/91${s.phone?.replace(/[^0-9]/g, '') || ''}" target="_blank" class="btn btn-sm btn-whatsapp" style="flex: 1; text-align: center;">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="mailto:${s.email}" class="btn btn-sm btn-primary" style="flex: 1; text-align: center;">
+                            <i class="fas fa-reply"></i> Reply via Email
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteContact(index) {
+            const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+            submissions.splice(index, 1);
+            localStorage.setItem('contact_submissions', JSON.stringify(submissions));
+            loadContactsEditor();
+            showAlert('Contact deleted', 'success');
+        }
+
+        function clearContactSubmissions() {
+            if (!confirm('Are you sure you want to delete ALL contact submissions? This cannot be undone.')) return;
+            localStorage.setItem('contact_submissions', JSON.stringify([]));
+            loadContactsEditor();
+            showAlert('All contacts cleared', 'success');
+        }
     </script>
 </body>
 </html>

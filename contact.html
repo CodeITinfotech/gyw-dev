@@ -130,6 +130,9 @@
                             <a href="https://facebook.com/goayachtworld" target="_blank" class="social-icon">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
+                            <a href="https://youtube.com/@goayachtworld" target="_blank" class="social-icon">
+                                <i class="fab fa-youtube"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -242,10 +245,35 @@
         document.getElementById('contactForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
-            const whatsappMsg = encodeURIComponent(`Hi, I'm ${name}.\n\nSubject: ${subject}\n\n${message}`);
+            
+            // Format message for WhatsApp
+            const whatsappMsg = encodeURIComponent(`🌊 *New Contact from Website*\n\n*Name:* ${name}\n*Email:* ${email}\n*Phone:* ${phone || 'Not provided'}\n*Subject:* ${subject}\n\n*Message:*\n${message}`);
+            
+            // Open WhatsApp
             window.open(`https://wa.me/918446275985?text=${whatsappMsg}`, '_blank');
+            
+            // Save to localStorage for admin review
+            const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+            submissions.unshift({
+                name, email, phone, subject, message,
+                date: new Date().toISOString()
+            });
+            // Keep only last 100 submissions
+            if (submissions.length > 100) submissions.pop();
+            localStorage.setItem('contact_submissions', JSON.stringify(submissions));
+            
+            // Also open mailto as backup
+            const mailSubject = encodeURIComponent(`Contact from Website: ${subject}`);
+            const mailBody = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nPhone: ${phone}\nSubject: ${subject}\n\nMessage:\n${message}`);
+            window.open(`mailto:goayachtworld@gmail.com?subject=${mailSubject}&body=${mailBody}`, '_blank');
+            
+            // Show success
+            alert('Thank you! Your message has been sent. We will contact you shortly.');
+            this.reset();
         });
     </script>
 </body>
