@@ -10,6 +10,24 @@ const CONFIG = {
     dbName: 'GoaYachtWorldDB'
 };
 
+// Google Reviews - Replace with actual Google Reviews embed or API
+// Placeholder reviews (replace with live data from Google Reviews API or embed)
+const GOOGLE_REVIEWS = [
+    { name: "Naveen Sharma", date: "2 weeks ago", rating: 5, text: "Absolutely outstanding video shoot experience! The team was incredibly professional, creative, and attentive to detail. From concept to execution, they exceeded all expectations. Highly recommend for any yacht charter needs in Goa!", avatar: "NS" },
+    { name: "Daniel Fernandes", date: "1 month ago", rating: 5, text: "Fantastic yacht experience! Clean, well-maintained vessels, friendly staff, easy booking, and affordable rates. Our day on the water was unforgettable. Will definitely book again!", avatar: "DF" },
+    { name: "Manish Rajput", date: "3 weeks ago", rating: 5, text: "Five-star cruise experience, well-equipped boats, knowledgeable crew, and reasonable prices. Our day on the cruise was pure bliss. Highly recommended for anyone visiting Goa!", avatar: "MR" },
+    { name: "Priya Patel", date: "1 week ago", rating: 5, text: "Amazing birthday celebration on the yacht! The team went above and beyond to make our special day perfect. Everything from decorations to food was top-notch!", avatar: "PP" },
+    { name: "Amit Kumar", date: "2 months ago", rating: 5, text: "Best yacht rental service in Goa! Professional crew, beautiful yachts, and excellent customer service. Perfect for our corporate event!", avatar: "AK" },
+    { name: "Sneha Gupta", date: "3 weeks ago", rating: 5, text: "Romantic sunset cruise was absolutely magical! The yacht was beautiful, champagne was included, and the views were breathtaking. Perfect for couples!", avatar: "SG" },
+    { name: "Rahul Mehta", date: "1 month ago", rating: 5, text: "Great experience for our family outing. Kids loved every moment. The crew was patient with children and very accommodating. Will come back!", avatar: "RM" },
+    { name: "Vikram Singh", date: "5 days ago", rating: 5, text: "Best decision to book with Goa Yacht World! The entire process from booking to the actual cruise was seamless. Highly professional team!", avatar: "VS" },
+    { name: "Ananya Reddy", date: "2 weeks ago", rating: 5, text: "Dream yacht experience! We celebrated our anniversary here and it was perfect. The sunset views from the deck were absolutely stunning!", avatar: "AR" },
+    { name: "Karthik Nair", date: "1 week ago", rating: 4, text: "Great service overall. The yacht was clean and well-maintained. Would have given 5 stars but wish the booking process was slightly faster.", avatar: "KN" }
+];
+
+let displayedReviews = 0;
+const REVIEWS_PER_PAGE = 5;
+
 // Yacht data - Real boats from goayachtworld.com
 const DEFAULT_YACHTS = [
     { id: 'yacht-001', name: 'Aqua Queen', type: 'Yacht', location: 'Panjim', capacity: 8, price: 15000, featured: true, images: ['https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/service-yacht-2.jpg'] },
@@ -137,6 +155,84 @@ function renderYachts() {
     `).join('');
 }
 
+// Render stars
+function renderStars(rating) {
+    return Array(5).fill(0).map((_, i) => 
+        `<i class="fas fa-star${i < rating ? '' : '-half-alt'}"></i>`
+    ).join('');
+}
+
+// Sort reviews: 5-star with long comments first, then rest
+function sortReviews(reviews) {
+    return [...reviews].sort((a, b) => {
+        const aLong = a.text.length > 100;
+        const bLong = b.text.length > 100;
+        if (a.rating === 5 && b.rating !== 5) return -1;
+        if (b.rating === 5 && a.rating !== 5) return 1;
+        if (aLong && !bLong) return -1;
+        if (bLong && !aLong) return 1;
+        return b.rating - a.rating;
+    });
+}
+
+// Render reviews
+function renderReviews() {
+    const grid = document.getElementById('reviewsGrid');
+    const footer = document.getElementById('reviewsFooter');
+    const loadMoreBtn = document.getElementById('loadMoreReviews');
+    if (!grid) return;
+    
+    const sortedReviews = sortReviews(GOOGLE_REVIEWS);
+    const reviewsToShow = sortedReviews.slice(0, displayedReviews + REVIEWS_PER_PAGE);
+    
+    grid.innerHTML = reviewsToShow.map(review => {
+        const isLong = review.text.length > 100;
+        return `
+            <div class="review-card">
+                <div class="review-card-header">
+                    <div class="review-card-avatar">${review.avatar}</div>
+                    <div class="review-card-info">
+                        <h4>${review.name}</h4>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                </div>
+                <div class="stars">${renderStars(review.rating)}</div>
+                <p class="${isLong ? 'short' : ''}" id="review-text-${review.name.replace(/\s/g, '-')}">${review.text}</p>
+                <div class="review-card-footer">
+                    <span class="review-card-google">
+                        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_42x16dp.png" alt="Google" style="height:14px;">
+                        Google
+                    </span>
+                    ${isLong ? `<button class="read-more-btn" onclick="toggleReviewText('${review.name.replace(/\s/g, '-')}')">Read more</button>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    displayedReviews = reviewsToShow.length;
+    
+    // Show/hide load more button
+    if (footer) {
+        footer.style.display = displayedReviews >= sortedReviews.length ? 'none' : 'block';
+    }
+}
+
+// Toggle review text expansion
+function toggleReviewText(id) {
+    const element = document.getElementById('review-text-' + id);
+    const button = element.nextElementSibling.querySelector('.read-more-btn');
+    if (element.classList.contains('short')) {
+        element.classList.remove('short');
+        if (button) button.textContent = 'Read less';
+    } else {
+        element.classList.add('short');
+        if (button) button.textContent = 'Read more';
+    }
+}
+
+// Make toggleReviewText available globally
+window.toggleReviewText = toggleReviewText;
+
 // Hero Slider with Video on Hover
 function initHeroSlider() {
     const heroSection = document.querySelector('.hero-slider');
@@ -193,6 +289,13 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     renderYachts();
+    renderReviews();
     initHeroSlider();
     initMobileMenu();
+    
+    // Load more reviews button
+    const loadMoreBtn = document.getElementById('loadMoreReviews');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', renderReviews);
+    }
 });

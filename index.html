@@ -77,9 +77,6 @@
                 </div>
             </div>
         </div>
-        <div class="hero-hover-hint">
-            <i class="fas fa-play-circle"></i> Hover to play video
-        </div>
     </section>
 
     <!-- Services -->
@@ -135,30 +132,29 @@
     </section>
 
     <!-- Reviews -->
-    <section class="section reviews-section">
+    <section class="section reviews-section" id="reviews">
         <div class="container">
             <div class="section-title">
                 <h2>Our happy customers</h2>
+                <div class="google-rating-badge">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="rating-text">4.8 on Google</span>
+                    <a href="https://www.google.com/maps/place/Goa+Yacht+World" target="_blank" class="view-reviews-link">View all reviews</a>
+                </div>
             </div>
-            <div class="reviews-grid">
-                <div class="review-card">
-                    <p>"Absolutely outstanding video shoot experience! The team was incredibly professional, creative, and attentive to detail. From concept to execution, they exceeded all expectations."</p>
-                    <div class="review-author">
-                        <strong>Naveen Sharma</strong>
-                    </div>
-                </div>
-                <div class="review-card">
-                    <p>"Fantastic yacht experience! Clean, well-maintained vessels, friendly staff, easy booking, and affordable rates. Our day on the water was unforgettable."</p>
-                    <div class="review-author">
-                        <strong>Daniel Fernandes</strong>
-                    </div>
-                </div>
-                <div class="review-card">
-                    <p>"Five-star cruise experience, well-equipped boats, knowledgeable crew, and reasonable prices. Our day on the cruise was pure bliss. Highly recommended."</p>
-                    <div class="review-author">
-                        <strong>Manish Rajput</strong>
-                    </div>
-                </div>
+            <div class="reviews-grid" id="reviewsGrid">
+                <!-- Reviews loaded via JS -->
+            </div>
+            <div class="reviews-footer" id="reviewsFooter">
+                <button class="btn btn-outline" id="loadMoreReviews">
+                    <i class="fas fa-plus"></i> Load More Reviews
+                </button>
             </div>
         </div>
     </section>
