@@ -1058,30 +1058,67 @@
             
             const reviews = JSON.parse(localStorage.getItem('google_reviews') || JSON.stringify(getDefaultReviews()));
             
-            container.innerHTML = reviews.map((r, i) => `
-                <div style="background: var(--bg-light); padding: 20px; border-radius: 12px; margin-top: 15px;">
+            container.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <p style="margin: 0;"><strong>Total Reviews:</strong> ${reviews.length} (Max: 20, must be multiple of 3)</p>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="addReview()">+ Add Review</button>
+                    </div>
+                </div>
+            ` + reviews.map((r, i) => `
+                <div class="review-edit-card" style="background: var(--bg-light); padding: 20px; border-radius: 12px; margin-top: 15px; border-left: 4px solid var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h4 style="margin: 0; color: var(--primary);">Review #${i + 1}</h4>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReview(${i})" ${reviews.length <= 3 ? 'disabled style="opacity:0.5"' : ''}>Delete</button>
+                    </div>
                     <div class="form-group">
                         <label>Name</label>
                         <input type="text" value="${r.name}" onchange="updateReview(${i}, 'name', this.value)">
                     </div>
-                    <div class="form-group">
-                        <label>Date</label>
-                        <input type="text" value="${r.date}" onchange="updateReview(${i}, 'date', this.value)">
-                    </div>
-                    <div class="form-group">
-                        <label>Rating (1-5)</label>
-                        <input type="number" min="1" max="5" value="${r.rating}" onchange="updateReview(${i}, 'rating', this.value)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="text" value="${r.date}" onchange="updateReview(${i}, 'date', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Rating (1-5)</label>
+                            <input type="number" min="1" max="5" value="${r.rating}" onchange="updateReview(${i}, 'rating', this.value)">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Review Text</label>
-                        <textarea style="min-height: 100px;" onchange="updateReview(${i}, 'text', this.value)">${r.text}</textarea>
+                        <textarea style="min-height: 80px;" onchange="updateReview(${i}, 'text', this.value)">${r.text}</textarea>
                     </div>
                     <div class="form-group">
-                        <label>Avatar (initials)</label>
+                        <label>Avatar (initials, max 2 chars)</label>
                         <input type="text" value="${r.avatar}" maxlength="2" onchange="updateReview(${i}, 'avatar', this.value)">
                     </div>
                 </div>
             `).join('');
+        }
+
+        function addReview() {
+            const reviews = JSON.parse(localStorage.getItem('google_reviews') || JSON.stringify(getDefaultReviews()));
+            if (reviews.length >= 20) {
+                showAlert('Maximum 20 reviews allowed!', 'error');
+                return;
+            }
+            reviews.push({ name: "New Reviewer", date: "1 week ago", rating: 5, text: "Enter review text here...", avatar: "NR" });
+            localStorage.setItem('google_reviews', JSON.stringify(reviews));
+            loadReviewsEditor();
+            showAlert('Review added!', 'success');
+        }
+
+        function deleteReview(index) {
+            const reviews = JSON.parse(localStorage.getItem('google_reviews') || JSON.stringify(getDefaultReviews()));
+            if (reviews.length <= 3) {
+                showAlert('Minimum 3 reviews required!', 'error');
+                return;
+            }
+            reviews.splice(index, 1);
+            localStorage.setItem('google_reviews', JSON.stringify(reviews));
+            loadReviewsEditor();
+            showAlert('Review deleted!', 'success');
         }
 
         function updateReview(index, field, value) {
@@ -1091,7 +1128,16 @@
         }
 
         function saveReviews() {
-            showAlert('Reviews saved successfully!', 'success');
+            const reviews = JSON.parse(localStorage.getItem('google_reviews') || JSON.stringify(getDefaultReviews()));
+            if (reviews.length % 3 !== 0) {
+                showAlert(`Reviews must be in multiples of 3! Current: ${reviews.length}`, 'error');
+                return;
+            }
+            if (reviews.length > 20) {
+                showAlert('Maximum 20 reviews allowed!', 'error');
+                return;
+            }
+            showAlert(`Reviews saved successfully! (${reviews.length} reviews)`, 'success');
         }
 
         function resetReviews() {
@@ -1109,11 +1155,7 @@
                 { name: "Manish Rajput", date: "3 weeks ago", rating: 5, text: "Five-star cruise experience, well-equipped boats, knowledgeable crew, and reasonable prices. Highly recommended!", avatar: "MR" },
                 { name: "Priya Patel", date: "1 week ago", rating: 5, text: "Amazing birthday celebration on the yacht! The team went above and beyond to make our special day perfect.", avatar: "PP" },
                 { name: "Amit Kumar", date: "2 months ago", rating: 5, text: "Best yacht rental service in Goa! Professional crew, beautiful yachts, and excellent customer service.", avatar: "AK" },
-                { name: "Sneha Gupta", date: "3 weeks ago", rating: 5, text: "Romantic sunset cruise was absolutely magical! Perfect for couples!", avatar: "SG" },
-                { name: "Rahul Mehta", date: "1 month ago", rating: 5, text: "Great experience for our family outing. Kids loved every moment.", avatar: "RM" },
-                { name: "Vikram Singh", date: "5 days ago", rating: 5, text: "Best decision to book with Goa Yacht World! Highly professional team!", avatar: "VS" },
-                { name: "Ananya Reddy", date: "2 weeks ago", rating: 5, text: "Dream yacht experience! Perfect for our anniversary celebration.", avatar: "AR" },
-                { name: "Karthik Nair", date: "1 week ago", rating: 4, text: "Great service overall. Would have given 5 stars but wish the booking process was slightly faster.", avatar: "KN" }
+                { name: "Sneha Gupta", date: "3 weeks ago", rating: 5, text: "Romantic sunset cruise was absolutely magical! Perfect for couples!", avatar: "SG" }
             ];
         }
 
