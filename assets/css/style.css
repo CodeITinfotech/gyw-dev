@@ -186,7 +186,17 @@ ul {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.header-right .btn {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.header-right .btn i {
+    margin-right: 4px;
 }
 
 .phone-link {
