@@ -111,11 +111,11 @@ class YachtDatabase {
                     const defaultYacht = DEFAULT_YACHTS.find(d => d.name === yacht.name);
                     return { ...yacht, location: defaultYacht?.location || 'Goa, India' };
                 });
-                return withLocation;
+                return withLocation.filter(y => !y.disabled);
             }
-            return parsed;
+            return parsed.filter(y => !y.disabled);
         }
-        return DEFAULT_YACHTS;
+        return DEFAULT_YACHTS.filter(y => !y.disabled);
     }
 
     getFeaturedYachts() {
