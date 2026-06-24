@@ -524,6 +524,69 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Gallery Preview Grid */
+        .gallery-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .preview-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary, #00b894);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
     </style>
 </head>
 <body>
@@ -732,7 +795,7 @@
                 <section id="section-gallery" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-images"></i> Gallery Management</h2>
                     <p style="color: var(--text-light); margin-bottom: 20px;">
-                        Manage Photos, Reels, and Shorts for the gallery page.
+                        Manage Photos, Reels, and Shorts for the gallery page. Add URLs with preview option.
                     </p>
                     
                     <div class="tabs">
@@ -744,14 +807,20 @@
                     <!-- Photos Tab -->
                     <div class="tab-content active" id="photos-mgmt-tab">
                         <div class="alert" id="photosAlert"></div>
-                        <p style="color: var(--text-light); margin-bottom: 15px;">
-                            Enter image URLs (one per line). Images will display in the Photos tab on the gallery page.
-                        </p>
+                        <div class="gallery-mgmt-header">
+                            <p style="color: var(--text-light); margin: 0;">
+                                <i class="fas fa-image"></i> Add photo URLs (one per line). Use the preview option to see how they'll appear.
+                            </p>
+                        </div>
                         <div class="form-group">
                             <label>Photo URLs</label>
-                            <textarea id="photosContent" style="min-height: 300px;" placeholder="Enter image URLs, one per line:&#10;https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"></textarea>
+                            <textarea id="photosContent" style="min-height: 150px;" placeholder="Enter image URLs, one per line:&#10;https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg"></textarea>
                         </div>
-                        <div class="btn-group">
+                        <button class="btn btn-outline" onclick="previewGalleryItems('photos')" style="margin-bottom: 20px;">
+                            <i class="fas fa-eye"></i> Preview Photos
+                        </button>
+                        <div id="photosPreview" class="gallery-preview-grid"></div>
+                        <div class="btn-group" style="margin-top: 20px;">
                             <button class="btn btn-success" onclick="saveGalleryItem('photos')">
                                 <i class="fas fa-save"></i> Save Photos
                             </button>
@@ -764,14 +833,20 @@
                     <!-- Reels Tab -->
                     <div class="tab-content" id="reels-mgmt-tab">
                         <div class="alert" id="reelsAlert"></div>
-                        <p style="color: var(--text-light); margin-bottom: 15px;">
-                            Enter video URLs for Reels (one per line).
-                        </p>
+                        <div class="gallery-mgmt-header">
+                            <p style="color: var(--text-light); margin: 0;">
+                                <i class="fas fa-video"></i> Add video URLs for Reels (one per line).
+                            </p>
+                        </div>
                         <div class="form-group">
                             <label>Reel Video URLs</label>
-                            <textarea id="reelsContent" style="min-height: 300px;" placeholder="Enter video URLs, one per line:&#10;https://example.com/reel1.mp4&#10;https://example.com/reel2.mp4"></textarea>
+                            <textarea id="reelsContent" style="min-height: 150px;" placeholder="Enter video URLs, one per line:&#10;https://example.com/reel1.mp4&#10;https://example.com/reel2.mp4"></textarea>
                         </div>
-                        <div class="btn-group">
+                        <button class="btn btn-outline" onclick="previewGalleryItems('reels')" style="margin-bottom: 20px;">
+                            <i class="fas fa-eye"></i> Preview Reels
+                        </button>
+                        <div id="reelsPreview" class="gallery-preview-grid"></div>
+                        <div class="btn-group" style="margin-top: 20px;">
                             <button class="btn btn-success" onclick="saveGalleryItem('reels')">
                                 <i class="fas fa-save"></i> Save Reels
                             </button>
@@ -784,14 +859,20 @@
                     <!-- Shorts Tab -->
                     <div class="tab-content" id="shorts-mgmt-tab">
                         <div class="alert" id="shortsAlert"></div>
-                        <p style="color: var(--text-light); margin-bottom: 15px;">
-                            Enter YouTube Shorts URLs (one per line).
-                        </p>
+                        <div class="gallery-mgmt-header">
+                            <p style="color: var(--text-light); margin: 0;">
+                                <i class="fab fa-youtube"></i> Add YouTube Shorts URLs (one per line).
+                            </p>
+                        </div>
                         <div class="form-group">
                             <label>YouTube Shorts URLs</label>
-                            <textarea id="shortsContent" style="min-height: 300px;" placeholder="Enter YouTube Shorts URLs, one per line:&#10;https://www.youtube.com/shorts/abc123&#10;https://www.youtube.com/shorts/xyz789"></textarea>
+                            <textarea id="shortsContent" style="min-height: 150px;" placeholder="Enter YouTube Shorts URLs, one per line:&#10;https://www.youtube.com/shorts/abc123&#10;https://www.youtube.com/shorts/xyz789"></textarea>
                         </div>
-                        <div class="btn-group">
+                        <button class="btn btn-outline" onclick="previewGalleryItems('shorts')" style="margin-bottom: 20px;">
+                            <i class="fas fa-eye"></i> Preview Shorts
+                        </button>
+                        <div id="shortsPreview" class="gallery-preview-grid"></div>
+                        <div class="btn-group" style="margin-top: 20px;">
                             <button class="btn btn-success" onclick="saveGalleryItem('shorts')">
                                 <i class="fas fa-save"></i> Save Shorts
                             </button>
@@ -806,15 +887,35 @@
                 <section id="section-reviews" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-star"></i> Google Reviews</h2>
                     <p style="color: var(--text-light); margin-bottom: 20px;">
-                        Manage displayed reviews. Changes will reflect on the website immediately.
+                        Manage displayed reviews and reviewer photos.
                     </p>
+                    
                     <div class="alert" id="reviewsAlert"></div>
-                    <button class="btn btn-success" onclick="saveReviews()">
-                        <i class="fas fa-save"></i> Save Reviews
-                    </button>
-                    <button class="btn btn-danger" onclick="resetReviews()">
-                        <i class="fas fa-undo"></i> Reset to Default
-                    </button>
+                    
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0;"><i class="fas fa-camera"></i> Reviewer Photos</h3>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">
+                            Upload or enter URLs for reviewer profile photos (optional). Leave empty for default avatar.
+                        </p>
+                        <div class="form-group">
+                            <label>Photo URLs (one per line, match review order)</label>
+                            <textarea id="reviewPhotosContent" style="min-height: 100px;" placeholder="Enter photo URLs for reviewers:&#10;https://example.com/avatar1.jpg&#10;https://example.com/avatar2.jpg"></textarea>
+                        </div>
+                        <button class="btn btn-sm btn-outline" onclick="previewReviewPhotos()" style="margin-bottom: 15px;">
+                            <i class="fas fa-eye"></i> Preview Photos
+                        </button>
+                        <div id="reviewPhotosPreview" class="gallery-preview-grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <button class="btn btn-success" onclick="saveReviews()">
+                            <i class="fas fa-save"></i> Save Reviews
+                        </button>
+                        <button class="btn btn-danger" onclick="resetReviews()">
+                            <i class="fas fa-undo"></i> Reset to Default
+                        </button>
+                    </div>
+                    
                     <div id="reviewsEditor"></div>
                 </section>
 
@@ -822,13 +923,33 @@
                 <section id="section-settings" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-cog"></i> Admin Settings</h2>
                     
-                    <div class="form-group">
-                        <label>Change Admin Password</label>
-                        <input type="password" id="newPassword" placeholder="Enter new password (leave blank to keep current)">
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0;"><i class="fas fa-desktop"></i> Homepage Settings</h3>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #fff; border-radius: 8px; margin-bottom: 15px;">
+                            <div>
+                                <strong>Hero Auto Scroll</strong>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.9rem;">
+                                    When user moves mouse out of hero section, scroll to yachts automatically
+                                </p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="heroAutoScroll" checked onchange="saveHeroSettings()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
-                    <button class="btn btn-success" onclick="changePassword()">
-                        <i class="fas fa-save"></i> Save Password
-                    </button>
+                    
+                    <div style="background: var(--bg-light); padding: 20px; border-radius: 12px;">
+                        <h3 style="margin-top: 0;"><i class="fas fa-key"></i> Security</h3>
+                        <div class="form-group">
+                            <label>Change Admin Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password (leave blank to keep current)">
+                        </div>
+                        <button class="btn btn-success" onclick="changePassword()">
+                            <i class="fas fa-save"></i> Save Password
+                        </button>
+                    </div>
                 </section>
             </main>
         </div>
@@ -901,10 +1022,26 @@
             if (loginScreen) loginScreen.style.display = 'none';
             if (adminDashboard) adminDashboard.classList.add('active');
             
+            // Load hero settings
+            const heroAutoScroll = localStorage.getItem('heroAutoScroll');
+            const toggle = document.getElementById('heroAutoScroll');
+            if (toggle) {
+                toggle.checked = heroAutoScroll !== 'false';
+            }
+            
             // Load editors
             if (typeof loadPoliciesIntoEditor === 'function') loadPoliciesIntoEditor();
             if (typeof loadReviewsEditor === 'function') loadReviewsEditor();
             if (typeof loadGalleryEditor === 'function') loadGalleryEditor();
+        }
+
+        // Save Hero Settings
+        function saveHeroSettings() {
+            const toggle = document.getElementById('heroAutoScroll');
+            if (toggle) {
+                localStorage.setItem('heroAutoScroll', toggle.checked.toString());
+                showAlert('Hero settings saved!', 'success');
+            }
         }
 
         // Admin Logout
@@ -1266,6 +1403,69 @@
                 alert.style.display = 'block';
                 setTimeout(() => alert.style.display = 'none', 3000);
             }
+        }
+
+        // Preview Gallery Items
+        function previewGalleryItems(type) {
+            const content = document.getElementById(type + 'Content').value;
+            const previewDiv = document.getElementById(type + 'Preview');
+            const urls = content.split('\n').filter(url => url.trim());
+            
+            if (urls.length === 0) {
+                previewDiv.innerHTML = '<p style="color: #888;">No items to preview. Add URLs above and click Preview.</p>';
+                return;
+            }
+            
+            if (type === 'photos') {
+                previewDiv.innerHTML = urls.map((url, i) => `
+                    <div class="preview-item" style="position: relative; border-radius: 8px; overflow: hidden; background: #f0f0f0;">
+                        <img src="${url.trim()}" alt="Photo ${i + 1}" style="width: 100%; aspect-ratio: 1; object-fit: cover;" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2212%22>Error</text></svg>'">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; font-size: 12px;">
+                            Photo ${i + 1}
+                        </div>
+                    </div>
+                `).join('');
+            } else if (type === 'reels') {
+                previewDiv.innerHTML = urls.map((url, i) => `
+                    <div class="preview-item" style="position: relative; border-radius: 8px; overflow: hidden; background: #000;">
+                        <video src="${url.trim()}" style="width: 100%; aspect-ratio: 9/16; object-fit: cover;" controls></video>
+                        <div style="position: absolute; top: 10px; left: 10px; background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px;">
+                            <i class="fas fa-play"></i> Reel ${i + 1}
+                        </div>
+                    </div>
+                `).join('');
+            } else if (type === 'shorts') {
+                previewDiv.innerHTML = urls.map((url, i) => {
+                    const videoId = url.match(/\/shorts\/([a-zA-Z0-9_-]+)/);
+                    const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId[1]}` : url;
+                    return `
+                        <div class="preview-item" style="position: relative; border-radius: 8px; overflow: hidden; background: #000;">
+                            <iframe src="${embedUrl}" style="width: 100%; aspect-ratio: 9/16; border: none;" allowfullscreen></iframe>
+                            <div style="position: absolute; top: 10px; left: 10px; background: #FF0000; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 11px;">
+                                <i class="fab fa-youtube"></i> Short ${i + 1}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Preview Review Photos
+        function previewReviewPhotos() {
+            const content = document.getElementById('reviewPhotosContent').value;
+            const previewDiv = document.getElementById('reviewPhotosPreview');
+            const urls = content.split('\n').filter(url => url.trim());
+            
+            if (urls.length === 0) {
+                previewDiv.innerHTML = '<p style="color: #888; grid-column: 1/-1;">No photos to preview. Add URLs above.</p>';
+                return;
+            }
+            
+            previewDiv.innerHTML = urls.map((url, i) => `
+                <div style="position: relative;">
+                    <img src="${url.trim()}" alt="Reviewer Photo ${i + 1}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ddd%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2210%22>?</text></svg>'">
+                </div>
+            `).join('');
         }
 
         // Change Password

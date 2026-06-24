@@ -264,7 +264,7 @@ function toggleReviewText(id) {
 // Make toggleReviewText available globally
 window.toggleReviewText = toggleReviewText;
 
-// Hero Slider with Video on Hover
+// Hero Slider with Video on Hover & Auto Scroll
 function initHeroSlider() {
     const heroSection = document.querySelector('.hero-slider');
     const video = document.querySelector('.hero-video');
@@ -277,6 +277,14 @@ function initHeroSlider() {
         heroSection.addEventListener('mouseleave', function() {
             video.pause();
             video.currentTime = 0;
+            // Auto scroll to yachts section
+            const autoScroll = localStorage.getItem('heroAutoScroll');
+            if (autoScroll !== 'false') {
+                const yachtsSection = document.getElementById('yachts');
+                if (yachtsSection) {
+                    yachtsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
         });
     }
 }
