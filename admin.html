@@ -1154,13 +1154,20 @@ Value|Best value for your investment..."></textarea>
                             <h3><i class="fas fa-image"></i> Photos</h3>
                         </div>
                         <div class="form-group">
-                            <label>Add Photo URL</label>
+                            <label>Add Photo URL or Upload</label>
                             <div style="display: flex; gap: 10px;">
                                 <input type="text" id="photosUrlInput" placeholder="https://example.com/photo.jpg" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                                 <button class="btn btn-primary" onclick="addGalleryItem('photos')">
                                     <i class="fas fa-plus"></i> Add
                                 </button>
+                                <label class="btn btn-success" style="cursor: pointer;">
+                                    <i class="fas fa-upload"></i> Upload
+                                    <input type="file" id="photosFileInput" accept="image/*" onchange="handlePhotoUpload(this)" style="display: none;">
+                                </label>
                             </div>
+                            <p style="font-size: 12px; color: #666; margin-top: 8px;">
+                                <i class="fas fa-info-circle"></i> Uploaded photos are stored locally. For permanent hosting, use a CDN or server.
+                            </p>
                         </div>
                         <div id="photosGallery" class="gallery-grid-admin" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;"></div>
                         <div class="btn-group" style="margin-top: 20px;">
@@ -2412,7 +2419,7 @@ Value|Best value for your investment..."></textarea>
             renderBannerPhotos();
         }
 
-        function addGalleryPhoto(type) {
+        function addGalleryItem(type) {
             let url;
             if (type === 'photos') {
                 url = document.getElementById('photosUrlInput')?.value?.trim();
@@ -2449,6 +2456,33 @@ Value|Best value for your investment..."></textarea>
             // Clear input
             const input = document.getElementById(type + 'UrlInput');
             if (input) input.value = '';
+        }
+
+        // Handle photo upload for gallery management
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const gallery = JSON.parse(localStorage.getItem('site_gallery') || JSON.stringify({photos: [], reels: [], shorts: []}));
+            
+            if (gallery.photos.length >= 50) {
+                showAlert('Maximum 50 photos allowed', 'error');
+                input.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                gallery.photos.push(e.target.result);
+                localStorage.setItem('site_gallery', JSON.stringify(gallery));
+                renderGalleryItems('photos');
+                showAlert('Photo uploaded successfully!', 'success');
+            };
+            reader.onerror = function() {
+                showAlert('Error reading file', 'error');
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
         }
 
         function renderYachtGalleryPhotos() {
