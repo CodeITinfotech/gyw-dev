@@ -1001,6 +1001,76 @@ ul {
 }
 
 /* ==========================================
+   LEGAL PAGES (Privacy, Terms, FAQ)
+   ========================================== */
+.legal-content {
+    background: var(--white);
+}
+
+.legal-document {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.legal-document .last-updated {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.legal-document h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 40px 0 20px;
+}
+
+.legal-document h2:first-of-type {
+    margin-top: 0;
+}
+
+.legal-document p {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 15px;
+}
+
+.legal-document ul {
+    margin: 15px 0 20px 20px;
+    padding-left: 20px;
+}
+
+.legal-document ul li {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 10px;
+    list-style: disc;
+}
+
+.legal-document ul li strong {
+    color: var(--text);
+}
+
+.contact-box {
+    background: var(--bg-light);
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.contact-box p {
+    margin-bottom: 10px;
+}
+
+.contact-box p:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================
    WHATSAPP FLOAT
    ========================================== */
 .whatsapp-float {
