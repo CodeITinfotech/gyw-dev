@@ -758,7 +758,7 @@
                 <section id="section-extras" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-plus-circle"></i> Extra Services Management</h2>
                     <p style="color: var(--text-light); margin-bottom: 20px;">
-                        Manage extra services that can be added to yacht bookings. These extras will be available for selection when booking.
+                        Manage extra services that can be added to yacht bookings. Click on any item to edit inline.
                     </p>
                     
                     <div class="alert" id="extrasAlert"></div>
@@ -780,14 +780,22 @@
                         <div id="extrasList" style="margin-top: 20px;"></div>
                     </div>
                     
-                    <div style="background: var(--bg-light); padding: 20px; border-radius: 12px;">
-                        <h3 style="margin-top: 0;"><i class="fas fa-info-circle"></i> How It Works</h3>
-                        <ul style="color: var(--text-light); line-height: 1.8;">
-                            <li>Add extra services here (e.g., Decorations, Photographer, etc.)</li>
-                            <li>When creating/editing a yacht, select which extras to include</li>
-                            <li>Guests can select extras when booking via WhatsApp</li>
-                            <li>Price 0 or leave empty = "As per requirement"</li>
-                        </ul>
+                    <!-- Edit Form (hidden by default) -->
+                    <div id="extraEditForm" style="background: #e3f2fd; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: none;">
+                        <h3 style="margin-top: 0;"><i class="fas fa-edit"></i> Edit Extra Service</h3>
+                        <input type="hidden" id="editExtraIndex" value="">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: end;">
+                            <input type="text" id="editExtraName" placeholder="Service Name" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <input type="number" id="editExtraPrice" placeholder="Price (₹)" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn btn-success" onclick="saveExtraEdit()">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                                <button class="btn btn-outline" onclick="cancelExtraEdit()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -795,125 +803,141 @@
                 <section id="section-yachts" class="admin-section" style="display: none;">
                     <h2><i class="fas fa-ship"></i> Yacht Management</h2>
                     <p style="color: var(--text-light); margin-bottom: 20px;">
-                        Manage yachts with banner photos and gallery images.
+                        Manage your fleet of yachts. Click on any yacht card to expand and edit.
                     </p>
                     
                     <div class="alert" id="yachtsAlert"></div>
                     
-                    <!-- Yacht Form -->
-                    <div id="yachtFormSection" style="background: var(--bg-light); padding: 20px; border-radius: 12px; margin-bottom: 20px; display: none;">
-                        <h3 id="yachtFormTitle" style="margin-top: 0;"><i class="fas fa-plus-circle"></i> Add New Yacht</h3>
-                        <input type="hidden" id="editYachtId" value="">
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div class="form-group">
-                                <label>Yacht Name *</label>
-                                <input type="text" id="yachtName" placeholder="Enter yacht name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                            </div>
-                            <div class="form-group">
-                                <label>Category *</label>
-                                <select id="yachtCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                                    <option value="">Select Category</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea id="yachtDescription" rows="3" placeholder="Enter yacht description" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
-                            <div class="form-group">
-                                <label>Capacity (guests)</label>
-                                <input type="number" id="yachtCapacity" placeholder="8" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                            </div>
-                            <div class="form-group">
-                                <label>Price (₹/hour)</label>
-                                <input type="number" id="yachtPrice" placeholder="15000" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                            </div>
-                            <div class="form-group">
-                                <label>Video URL</label>
-                                <input type="text" id="yachtVideo" placeholder="YouTube or video URL" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                            </div>
-                            <div class="form-group">
-                                <label>Featured</label>
-                                <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
-                                    <input type="checkbox" id="yachtFeatured">
-                                    <span>Show on featured section</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Amenities</label>
-                            <input type="text" id="yachtAmenities" placeholder="Welcome Drink, Water-bottle, Ice, Music System, Sun Deck" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Select Extras for this Yacht</label>
-                            <div id="yachtExtrasCheckboxes" style="display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 0;"></div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                <i class="fas fa-info-circle"></i> Select extras from the list. Manage extras in the "Extras" menu.
-                            </p>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Select FAQ Questions for this Yacht</label>
-                            <div id="yachtQuestionsCheckboxes" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 0; max-height: 200px; overflow-y: auto;"></div>
-                            <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                <i class="fas fa-info-circle"></i> Selected questions will appear on the yacht detail page. Manage questions in the "Popular Questions" menu.
-                            </p>
-                        </div>
-                        
-                        <!-- Banner Photos (up to 5) -->
-                        <div class="form-group">
-                            <label>Banner Photos (up to 5) <span id="bannerCount">0</span>/5</label>
-                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                <input type="text" id="bannerUrlInput" placeholder="https://example.com/banner.jpg" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                                <button class="btn btn-primary" onclick="addBannerPhoto()">
-                                    <i class="fas fa-plus"></i> Add
-                                </button>
-                            </div>
-                            <div id="bannerPhotosList" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-                        </div>
-                        
-                        <!-- Gallery Photos (up to 15) -->
-                        <div class="form-group">
-                            <label>Gallery Photos (up to 15) <span id="galleryCount">0</span>/15</label>
-                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                <input type="text" id="galleryUrlInput" placeholder="https://example.com/gallery.jpg" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-                                <button class="btn btn-primary" onclick="addGalleryPhoto()">
-                                    <i class="fas fa-plus"></i> Add
-                                </button>
-                            </div>
-                            <div id="galleryPhotosList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;"></div>
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px; margin-top: 20px;">
-                            <button class="btn btn-success" onclick="saveYacht()">
-                                <i class="fas fa-save"></i> Save Yacht
-                            </button>
-                            <button class="btn btn-outline" onclick="cancelYachtForm()">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                        </div>
-                    </div>
-                    
                     <!-- Yachts List -->
                     <div style="background: var(--bg-light); padding: 20px; border-radius: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
-                                <label style="margin-right: 10px;">Filter by Category:</label>
-                                <select id="yachtCategoryFilter" onchange="filterYachtsByCategory()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; min-width: 200px;">
+                        <!-- Header with Search and Filter -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <input type="text" id="yachtSearchInput" placeholder="Search yachts..." onkeyup="searchYachts()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; min-width: 200px;">
+                                <select id="yachtCategoryFilter" onchange="filterYachtsByCategory()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;">
                                     <option value="">All Categories</option>
                                 </select>
                             </div>
+                            <span id="yachtCount" style="color: var(--text-light); font-size: 14px;"></span>
                             <button class="btn btn-sm btn-primary" onclick="showYachtForm()">
                                 <i class="fas fa-plus"></i> Add Yacht
                             </button>
                         </div>
-                        <div id="yachtsList"></div>
+                        
+                        <!-- Yacht Cards Grid -->
+                        <div id="yachtsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;"></div>
+                    </div>
+                    
+                    <!-- Yacht Form (Modal-like overlay at bottom) -->
+                    <div id="yachtFormSection" style="background: var(--bg-light); padding: 25px; border-radius: 12px; margin-top: 20px; border: 2px solid var(--primary); display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h3 id="yachtFormTitle" style="margin: 0;"><i class="fas fa-plus-circle"></i> Add New Yacht</h3>
+                            <button onclick="cancelYachtForm()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                        </div>
+                        <input type="hidden" id="editYachtId" value="">
+                        
+                        <!-- Basic Info -->
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="margin: 0 0 15px 0; color: var(--primary);"><i class="fas fa-info-circle"></i> Basic Information</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Yacht Name *</label>
+                                    <input type="text" id="yachtName" placeholder="Enter yacht name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Category *</label>
+                                    <select id="yachtCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                        <option value="">Select Category</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="yachtDescription" rows="2" placeholder="Enter yacht description" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Amenities</label>
+                                <input type="text" id="yachtAmenities" placeholder="Welcome Drink, Water-bottle, Ice, Music System, Sun Deck" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            </div>
+                        </div>
+                        
+                        <!-- Pricing & Details -->
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="margin: 0 0 15px 0; color: var(--primary);"><i class="fas fa-rupee-sign"></i> Pricing & Details</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                                <div class="form-group">
+                                    <label>Capacity (guests)</label>
+                                    <input type="number" id="yachtCapacity" placeholder="8" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Price (₹/hour)</label>
+                                    <input type="number" id="yachtPrice" placeholder="15000" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Video URL</label>
+                                    <input type="text" id="yachtVideo" placeholder="YouTube or video URL" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="yachtFeatured">
+                                    <span><strong>Featured</strong> - Show on featured section</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Extras & FAQ -->
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="margin: 0 0 15px 0; color: var(--primary);"><i class="fas fa-list"></i> Extras & FAQ</h4>
+                            <div class="form-group">
+                                <label>Select Extras for this Yacht</label>
+                                <div id="yachtExtrasCheckboxes" style="display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 0;"></div>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Manage extras in the "Extras" menu.
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <label>Select FAQ Questions for this Yacht</label>
+                                <div id="yachtQuestionsCheckboxes" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 0; max-height: 150px; overflow-y: auto;"></div>
+                                <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Manage questions in the "Popular Questions" menu.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Photos -->
+                        <div style="background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h4 style="margin: 0 0 15px 0; color: var(--primary);"><i class="fas fa-images"></i> Photos</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <!-- Banner Photos -->
+                                <div class="form-group">
+                                    <label>Banner Photos <span id="bannerCount">0</span>/5</label>
+                                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                        <input type="text" id="bannerUrlInput" placeholder="Image URL" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                                        <button class="btn btn-sm btn-primary" onclick="addBannerPhoto()"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                    <div id="bannerPhotosList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                                </div>
+                                <!-- Gallery Photos -->
+                                <div class="form-group">
+                                    <label>Gallery Photos <span id="galleryCount">0</span>/15</label>
+                                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                        <input type="text" id="galleryUrlInput" placeholder="Image URL" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                                        <button class="btn btn-sm btn-primary" onclick="addGalleryPhoto()"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                    <div id="galleryPhotosList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button class="btn btn-outline" onclick="cancelYachtForm()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            <button class="btn btn-success" onclick="saveYacht()">
+                                <i class="fas fa-save"></i> Save Yacht
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -1435,16 +1459,37 @@ Value|Best value for your investment..."></textarea>
             const extras = JSON.parse(localStorage.getItem('yacht_extras') || JSON.stringify(DEFAULT_EXTRAS));
             const extra = extras[index];
             
-            const name = prompt('Edit service name:', extra.name);
-            if (!name) return;
+            // Show the edit form
+            document.getElementById('extraEditForm').style.display = 'block';
+            document.getElementById('editExtraIndex').value = index;
+            document.getElementById('editExtraName').value = extra.name;
+            document.getElementById('editExtraPrice').value = extra.price;
+        }
+
+        function saveExtraEdit() {
+            const index = parseInt(document.getElementById('editExtraIndex').value);
+            const name = document.getElementById('editExtraName').value.trim();
+            const price = parseInt(document.getElementById('editExtraPrice').value) || 0;
             
-            const priceStr = prompt('Edit price (₹) - Enter 0 for "As per requirement":', extra.price);
-            const price = parseInt(priceStr) || 0;
+            if (!name) {
+                showAlert('Please enter service name', 'error');
+                return;
+            }
             
+            const extras = JSON.parse(localStorage.getItem('yacht_extras') || JSON.stringify(DEFAULT_EXTRAS));
             extras[index] = { name, price };
             localStorage.setItem('yacht_extras', JSON.stringify(extras));
+            
+            cancelExtraEdit();
             loadExtrasEditor();
             showAlert('Extra service updated!', 'success');
+        }
+
+        function cancelExtraEdit() {
+            document.getElementById('extraEditForm').style.display = 'none';
+            document.getElementById('editExtraIndex').value = '';
+            document.getElementById('editExtraName').value = '';
+            document.getElementById('editExtraPrice').value = '';
         }
 
         function deleteExtraService(index) {
@@ -2035,43 +2080,71 @@ Value|Best value for your investment..."></textarea>
                 ).join('');
             }
             
-            // Render yachts
+            // Render yachts with card grid
             const yachtsList = document.getElementById('yachtsList');
+            const yachtCount = document.getElementById('yachtCount');
+            const searchTerm = (document.getElementById('yachtSearchInput')?.value || '').toLowerCase();
             const selectedCategory = filter ? filter.value : '';
-            const filteredYachts = selectedCategory ? yachts.filter(y => y.type === selectedCategory) : yachts;
+            
+            let filteredYachts = yachts;
+            if (selectedCategory) {
+                filteredYachts = filteredYachts.filter(y => y.type === selectedCategory);
+            }
+            if (searchTerm) {
+                filteredYachts = filteredYachts.filter(y => 
+                    y.name.toLowerCase().includes(searchTerm) ||
+                    (y.description || '').toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (yachtCount) yachtCount.textContent = `${filteredYachts.length} yachts`;
             
             if (yachtsList) {
                 if (filteredYachts.length === 0) {
-                    yachtsList.innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 40px;">No yachts found. Click "Add Yacht" to create one.</p>';
+                    yachtsList.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--text-light);">
+                            <i class="fas fa-ship" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                            <p style="font-size: 18px;">No yachts found</p>
+                            <p>Click "Add Yacht" to create one.</p>
+                        </div>
+                    `;
                     return;
                 }
+                
                 yachtsList.innerHTML = filteredYachts.map(yacht => {
                     const cat = categories.find(c => c.id === yacht.type) || { name: 'Unknown' };
-                    const videoIcon = yacht.video ? '<i class="fas fa-video" style="color: var(--primary); margin-left: 5px;"></i>' : '';
-                    const featuredBadge = yacht.featured ? '<span style="background: #ffd700; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 8px;">Featured</span>' : '';
+                    const videoIcon = yacht.video ? '<i class="fas fa-video" style="color: #e74c3c;"></i>' : '';
+                    const featuredStar = yacht.featured ? '<i class="fas fa-star" style="color: #ffd700;"></i>' : '';
+                    const galleryCount = (yacht.gallery || []).length || (yacht.images || []).length;
+                    
                     return `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #fff; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee;">
-                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
-                            <img src="${yacht.images[0]}" alt="${yacht.name}" style="width: 80px; height: 60px; object-fit: cover; border-radius: 8px;">
-                            <div style="flex: 1;">
-                                <div style="display: flex; align-items: center;">
-                                    <strong style="font-size: 16px;">${yacht.name}${videoIcon}${featuredBadge}</strong>
-                                </div>
-                                <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">${cat.name} • ${yacht.capacity} guests • ₹${yacht.price.toLocaleString('en-IN')}/hr</p>
-                                <p style="margin: 3px 0 0 0; font-size: 0.75rem; color: #999;">${(yacht.extras || []).length} extras • ${(yacht.gallery || []).length} gallery photos</p>
-                            </div>
+                    <div style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;" 
+                         onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)'" 
+                         onmouseout="this.style.transform='none';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'"
+                         onclick="showYachtForm('${yacht.id}')">
+                        <div style="position: relative; height: 160px;">
+                            <img src="${yacht.images[0]}" alt="${yacht.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                            ${featuredStar ? '<span style="position: absolute; top: 10px; left: 10px; background: #ffd700; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;"><i class="fas fa-star"></i> Featured</span>' : ''}
+                            <span style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px;">${yacht.capacity} guests</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; white-space: nowrap;">
-                                <input type="checkbox" ${yacht.featured ? 'checked' : ''} onchange="toggleFeatured('${yacht.id}', this.checked)">
-                                <span style="font-size: 12px;">Featured</span>
-                            </label>
-                            <button class="btn btn-sm btn-outline" onclick="showYachtForm('${yacht.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteYacht('${yacht.id}')"><i class="fas fa-trash"></i></button>
+                        <div style="padding: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                <h4 style="margin: 0; font-size: 16px; color: #333;">${yacht.name}</h4>
+                                ${videoIcon}
+                            </div>
+                            <p style="margin: 0 0 10px 0; font-size: 12px; color: var(--primary); font-weight: 600;">${cat.name}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 18px; font-weight: 700; color: #27ae60;">₹${yacht.price.toLocaleString('en-IN')}<span style="font-size: 12px; font-weight: 400; color: #666;">/hr</span></span>
+                                <span style="font-size: 11px; color: #999;">${galleryCount} photos</span>
+                            </div>
                         </div>
                     </div>
                 `}).join('');
             }
+        }
+
+        function searchYachts() {
+            loadYachtsEditor();
         }
 
         function toggleFeatured(yachtId, isFeatured) {
