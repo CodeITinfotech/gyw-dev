@@ -315,6 +315,7 @@
         .stat-card .stat-icon.green { background: rgba(40,167,69,0.1); color: var(--success); }
         .stat-card .stat-icon.orange { background: rgba(245,166,35,0.1); color: var(--gold); }
         .stat-card .stat-icon.red { background: rgba(220,53,69,0.1); color: var(--danger); }
+        .stat-card .stat-icon.purple { background: rgba(156,39,176,0.1); color: #9c27b0; }
 
         .stat-card .stat-info h3 {
             font-size: 28px;
@@ -325,6 +326,17 @@
         .stat-card .stat-info p {
             font-size: 13px;
             color: var(--text-light);
+        }
+
+        .stat-card .stat-link-hint {
+            display: none;
+            font-size: 12px;
+            color: var(--primary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+        .stat-card:hover .stat-link-hint {
+            display: block;
         }
 
         /* Content Sections */
@@ -700,7 +712,7 @@
                     <h2><i class="fas fa-chart-pie"></i> Dashboard</h2>
                     
                     <div class="dashboard-stats">
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="showSection('yachts')" style="cursor: pointer;">
                             <div class="stat-icon blue">
                                 <i class="fas fa-ship"></i>
                             </div>
@@ -708,8 +720,9 @@
                                 <h3>35</h3>
                                 <p>Total Yachts</p>
                             </div>
+                            <span class="stat-link-hint">Click to manage →</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="showSection('reviews')" style="cursor: pointer;">
                             <div class="stat-icon green">
                                 <i class="fas fa-star"></i>
                             </div>
@@ -717,24 +730,46 @@
                                 <h3>4.9</h3>
                                 <p>Google Rating</p>
                             </div>
+                            <span class="stat-link-hint">Click to manage →</span>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" onclick="showSection('inquiries')" style="cursor: pointer;">
                             <div class="stat-icon orange">
-                                <i class="fas fa-users"></i>
+                                <i class="fas fa-envelope-open-text"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>356+</h3>
-                                <p>Happy Clients</p>
+                                <h3 id="totalInquiries">0</h3>
+                                <p>Total Inquiries</p>
                             </div>
+                            <span class="stat-link-hint">Click to view →</span>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-icon red">
-                                <i class="fas fa-file-alt"></i>
+                        <div class="stat-card" onclick="showSection('categories')" style="cursor: pointer;">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-folder"></i>
                             </div>
                             <div class="stat-info">
-                                <h3>3</h3>
-                                <p>Active Policies</p>
+                                <h3 id="totalCategories">0</h3>
+                                <p>Categories</p>
                             </div>
+                            <span class="stat-link-hint">Click to manage →</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <a href="index.html" target="_blank" class="btn btn-outline" style="text-align: center; padding: 15px;">
+                                <i class="fas fa-external-link-alt"></i> View Website
+                            </a>
+                            <button class="btn btn-outline" onclick="showSection('yachts')" style="text-align: center; padding: 15px;">
+                                <i class="fas fa-ship"></i> Manage Yachts
+                            </button>
+                            <button class="btn btn-outline" onclick="showSection('extras')" style="text-align: center; padding: 15px;">
+                                <i class="fas fa-plus-circle"></i> Manage Extras
+                            </button>
+                            <button class="btn btn-outline" onclick="showSection('seo')" style="text-align: center; padding: 15px;">
+                                <i class="fas fa-search"></i> SEO Settings
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -1455,6 +1490,27 @@ Value|Best value for your investment..."></textarea>
             if (typeof loadYachtsEditor === 'function') loadYachtsEditor();
             if (typeof loadAboutUsEditor === 'function') loadAboutUsEditor();
             if (typeof loadSEOSettings === 'function') loadSEOSettings();
+            
+            // Update dashboard stats
+            updateDashboardStats();
+        }
+        
+        // Update dashboard stats dynamically
+        function updateDashboardStats() {
+            // Yachts count
+            const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+            const yachtCount = document.querySelector('#section-dashboard .stat-card:first-child h3');
+            if (yachtCount) yachtCount.textContent = yachts.length;
+            
+            // Categories count
+            const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify([]));
+            const catCount = document.getElementById('totalCategories');
+            if (catCount) catCount.textContent = categories.filter(c => c.active !== false).length;
+            
+            // Inquiries count
+            const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+            const inqCount = document.getElementById('totalInquiries');
+            if (inqCount) inqCount.textContent = submissions.length;
         }
 
         // Extras Management
