@@ -58,7 +58,6 @@ export default function BookingsAdminPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
-          <p className="text-gray-500">Manage all yacht bookings</p>
         </div>
         <div className="flex gap-3">
           <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors inline-flex items-center gap-2">

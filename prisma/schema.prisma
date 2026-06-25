@@ -3,22 +3,22 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 // Users & Authentication
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String?
-  phone         String?
-  role          Role      @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  bookings      Booking[]
-  reviews       Review[]
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
+  password  String
+  name      String?
+  phone     String?
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  reviews   Review[]
 
   @@map("users")
 }
@@ -31,7 +31,7 @@ enum Role {
 
 // Yacht Categories
 model YachtCategory {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   slug        String   @unique
   description String?
@@ -48,52 +48,52 @@ model YachtCategory {
 
 // Yachts
 model Yacht {
-  id             String   @id @default(cuid())
-  name           String
-  slug           String   @unique
-  description    String
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  slug             String   @unique
+  description      String
   shortDescription String?
-  capacity       Int
-  price          Decimal  @db.Decimal(10, 2)
-  categoryId     String
-  category       YachtCategory @relation(fields: [categoryId], references: [id])
-  location       String?
-  featured       Boolean  @default(false)
-  isActive       Boolean  @default(true)
+  capacity         Int
+  price            Float
+  categoryId       String   @db.ObjectId
+  category         YachtCategory @relation(fields: [categoryId], references: [id])
+  location         String?
+  featured         Boolean  @default(false)
+  isActive         Boolean  @default(true)
   
   // Booking Configuration
   enableDateField      Boolean @default(true)
-  enableGuestField    Boolean @default(true)
-  enableTimeSlot      Boolean @default(true)
-  enableExtraHours    Boolean @default(false)
-  enableAddons        Boolean @default(true)
+  enableGuestField     Boolean @default(true)
+  enableTimeSlot       Boolean @default(true)
+  enableExtraHours     Boolean @default(false)
+  enableAddons         Boolean @default(true)
   
   // Pricing
-  pricePerHour        Decimal?  @db.Decimal(10, 2)
+  pricePerHour         Float?
   minimumBookingHours  Int      @default(2)
   
   // Timestamps
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
   
   // Relations
-  images       YachtImage[]
-  videos       YachtVideo[]
-  timeSlots    TimeSlot[]
-  extraHours   ExtraHour[]
-  addons       YachtAddon[]
-  inclusions   YachtInclusion[]
-  exclusions   YachtExclusion[]
-  amenities    YachtAmenity[]
-  bookings     Booking[]
-  reviews      Review[]
+  images     YachtImage[]
+  videos     YachtVideo[]
+  timeSlots  TimeSlot[]
+  extraHours ExtraHour[]
+  addons     YachtAddon[]
+  inclusions YachtInclusion[]
+  exclusions YachtExclusion[]
+  amenities  YachtAmenity[]
+  bookings   Booking[]
+  reviews    Review[]
   
   @@map("yachts")
 }
 
 model YachtImage {
-  id        String   @id @default(cuid())
-  yachtId   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId   String   @db.ObjectId
   yacht     Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   url       String
   alt       String?
@@ -105,8 +105,8 @@ model YachtImage {
 }
 
 model YachtVideo {
-  id        String   @id @default(cuid())
-  yachtId   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId   String   @db.ObjectId
   yacht     Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   url       String
   thumbnail String?
@@ -118,13 +118,13 @@ model YachtVideo {
 }
 
 model TimeSlot {
-  id        String   @id @default(cuid())
-  yachtId   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId   String   @db.ObjectId
   yacht     Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
-  name      String   // e.g., "8AM - 10AM"
-  startTime String  // e.g., "08:00"
-  endTime   String  // e.g., "10:00"
-  price     Decimal  @db.Decimal(10, 2)
+  name      String
+  startTime String
+  endTime   String
+  price     Float
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
 
@@ -132,23 +132,23 @@ model TimeSlot {
 }
 
 model ExtraHour {
-  id        String   @id @default(cuid())
-  yachtId   String
-  yacht     Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
-  hours     Int
-  price     Decimal  @db.Decimal(10, 2)
-  isActive  Boolean  @default(true)
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId  String  @db.ObjectId
+  yacht    Yacht   @relation(fields: [yachtId], references: [id], onDelete: Cascade)
+  hours    Int
+  price    Float
+  isActive Boolean @default(true)
 
   @@map("extra_hours")
 }
 
 model YachtAddon {
-  id          String   @id @default(cuid())
-  yachtId     String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId     String   @db.ObjectId
   yacht       Yacht    @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   name        String
   description String?
-  price       Decimal  @db.Decimal(10, 2)
+  price       Float
   image       String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -157,8 +157,8 @@ model YachtAddon {
 }
 
 model YachtInclusion {
-  id      String @id @default(cuid())
-  yachtId String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId String @db.ObjectId
   yacht   Yacht  @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   text    String
 
@@ -166,8 +166,8 @@ model YachtInclusion {
 }
 
 model YachtExclusion {
-  id      String @id @default(cuid())
-  yachtId String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId String @db.ObjectId
   yacht   Yacht  @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   text    String
 
@@ -175,8 +175,8 @@ model YachtExclusion {
 }
 
 model YachtAmenity {
-  id      String @id @default(cuid())
-  yachtId String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  yachtId String @db.ObjectId
   yacht   Yacht  @relation(fields: [yachtId], references: [id], onDelete: Cascade)
   icon    String?
   name    String
@@ -186,25 +186,25 @@ model YachtAmenity {
 
 // Bookings
 model Booking {
-  id            String         @id @default(cuid())
-  bookingId     String         @unique // e.g., "GYW-2024-001"
-  userId        String?
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId     String         @unique
+  userId        String?        @db.ObjectId
   user          User?          @relation(fields: [userId], references: [id])
-  yachtId       String
+  yachtId       String         @db.ObjectId
   yacht         Yacht          @relation(fields: [yachtId], references: [id])
   
   // Booking Details
   bookingDate   DateTime
-  timeSlotId    String?
+  timeSlotId    String?        @db.ObjectId
   guests        Int
   
   // Pricing
-  basePrice     Decimal       @db.Decimal(10, 2)
-  extraHours     Decimal       @default(0) @db.Decimal(10, 2)
-  addonsTotal    Decimal       @default(0) @db.Decimal(10, 2)
-  discount       Decimal       @default(0) @db.Decimal(10, 2)
-  taxAmount      Decimal       @default(0) @db.Decimal(10, 2)
-  totalAmount   Decimal       @db.Decimal(10, 2)
+  basePrice     Float
+  extraHours    Float    @default(0)
+  addonsTotal   Float    @default(0)
+  discount      Float    @default(0)
+  taxAmount     Float    @default(0)
+  totalAmount   Float
   
   // Status
   status        BookingStatus @default(PENDING)
@@ -215,7 +215,7 @@ model Booking {
   customerPhone String?
   
   // Payment
-  couponId      String?
+  couponId      String?        @db.ObjectId
   coupon        Coupon?       @relation(fields: [couponId], references: [id])
   paymentId     String?
   paymentStatus PaymentStatus @default(PENDING)
@@ -247,12 +247,12 @@ enum PaymentStatus {
 }
 
 model BookingItem {
-  id          String   @id @default(cuid())
-  bookingId   String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId   String   @db.ObjectId
   booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  addonId     String?
+  addonId     String?  @db.ObjectId
   addonName   String?
-  addonPrice  Decimal? @db.Decimal(10, 2)
+  addonPrice  Float?
   quantity    Int      @default(1)
   
   @@map("booking_items")
@@ -260,20 +260,20 @@ model BookingItem {
 
 // Coupons
 model Coupon {
-  id            String       @id @default(cuid())
-  code          String       @unique
-  type          CouponType
-  value         Decimal      @db.Decimal(10, 2)
-  minAmount     Decimal?     @db.Decimal(10, 2)
-  maxDiscount   Decimal?     @db.Decimal(10, 2)
-  usageLimit    Int?
-  usedCount     Int          @default(0)
-  startsAt      DateTime
-  expiresAt     DateTime
-  isActive      Boolean      @default(true)
-  createdAt     DateTime     @default(now())
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  code        String     @unique
+  type        CouponType
+  value       Float
+  minAmount   Float?
+  maxDiscount Float?
+  usageLimit  Int?
+  usedCount   Int        @default(0)
+  startsAt    DateTime
+  expiresAt   DateTime
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
   
-  bookings      Booking[]
+  bookings    Booking[]
 
   @@map("coupons")
 }
@@ -285,26 +285,26 @@ enum CouponType {
 
 // Reviews
 model Review {
-  id            String    @id @default(cuid())
-  userId        String?
-  user          User?     @relation(fields: [userId], references: [id])
-  yachtId       String
-  yacht         Yacht     @relation(fields: [yachtId], references: [id])
-  rating        Int       // 1-5
-  title         String?
-  content       String?
-  customerName  String?
-  isApproved    Boolean   @default(false)
-  createdAt     DateTime  @default(now())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String?  @db.ObjectId
+  user         User?    @relation(fields: [userId], references: [id])
+  yachtId      String   @db.ObjectId
+  yacht        Yacht    @relation(fields: [yachtId], references: [id])
+  rating       Int
+  title        String?
+  content      String?
+  customerName String?
+  isApproved   Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   @@map("reviews")
 }
 
 // Website Settings
 model WebsiteSetting {
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   key       String   @unique
-  value     String   @db.Text
+  value     String
   category  String   @default("general")
   updatedAt DateTime @updatedAt
 
@@ -313,45 +313,45 @@ model WebsiteSetting {
 
 // Homepage Settings
 model HomepageSetting {
-  id              String   @id @default(cuid())
-  heroVideo       String?
-  heroHeading     String?
-  heroSubheading  String?
-  heroCtaText     String?
-  heroCtaLink     String?
-  featuredYachtIds String[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  heroVideo         String?
+  heroHeading       String?
+  heroSubheading    String?
+  heroCtaText       String?
+  heroCtaLink       String?
+  featuredYachtIds  String[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@map("homepage_settings")
 }
 
 // CMS Pages
 model CMSPage {
-  id              String   @id @default(cuid())
-  title           String
-  slug            String   @unique
-  content         String   @db.Text
-  metaTitle       String?
-  metaDescription String?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  slug             String   @unique
+  content          String
+  metaTitle        String?
+  metaDescription  String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@map("cms_pages")
 }
 
 // Testimonials
 model Testimonial {
-  id          String   @id @default(cuid())
-  name        String
-  location    String?
-  avatar      String?
-  content     String   @db.Text
-  rating      Int      @default(5)
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  location  String?
+  avatar    String?
+  content   String
+  rating    Int      @default(5)
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
 
   @@map("testimonials")
 }

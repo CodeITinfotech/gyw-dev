@@ -1,268 +1,286 @@
+import prisma from "./prisma";
 import type { Yacht, YachtCategory, Testimonial } from "@/types";
 
-// Demo categories
-export const getCategories = (): YachtCategory[] => [
-  { id: "1", name: "Luxury Yacht", slug: "luxury-yacht", icon: "🚤", sortOrder: 1, isActive: true },
-  { id: "2", name: "Party Yacht", slug: "party-yacht", icon: "🎉", sortOrder: 2, isActive: true },
-  { id: "3", name: "Sunset Cruise", slug: "sunset-cruise", icon: "🌅", sortOrder: 3, isActive: true },
-  { id: "4", name: "Corporate", slug: "corporate", icon: "💼", sortOrder: 4, isActive: true },
-  { id: "5", name: "Romantic", slug: "romantic", icon: "💕", sortOrder: 5, isActive: true },
-];
-
-// Demo yachts
-export const getYachts = (): Yacht[] => [
-  {
-    id: "1",
-    name: "Sea Princess",
-    slug: "sea-princess",
-    description: "Experience the ultimate luxury on the Sea Princess, a 50ft motor yacht perfect for parties up to 25 guests. Features include air-conditioned cabins, sun deck, and premium sound system.",
-    shortDescription: "50ft luxury motor yacht for parties up to 25 guests",
-    capacity: 25,
-    price: 25000,
-    categoryId: "1",
-    featured: true,
-    isActive: true,
-    enableDateField: true,
-    enableGuestField: true,
-    enableTimeSlot: true,
-    enableExtraHours: true,
-    enableAddons: true,
-    minimumBookingHours: 2,
-    location: "Vasco da Gama, Goa",
-    pricePerHour: 15000,
-    images: [
-      { id: "1", yachtId: "1", url: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800", isPrimary: true, sortOrder: 0 },
-      { id: "2", yachtId: "1", url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800", isPrimary: false, sortOrder: 1 },
-    ],
-    amenities: [
-      { id: "1", yachtId: "1", icon: "❄️", name: "Air Conditioning" },
-      { id: "2", yachtId: "1", icon: "🔊", name: "Sound System" },
-      { id: "3", yachtId: "1", icon: "☀️", name: "Sun Deck" },
-      { id: "4", yachtId: "1", icon: "🏊", name: "Swimming Platform" },
-    ],
-    inclusions: [
-      { id: "1", yachtId: "1", text: "Captain & Crew" },
-      { id: "2", yachtId: "1", text: "Fuel charges" },
-      { id: "3", yachtId: "1", text: "Life jackets" },
-    ],
-    exclusions: [
-      { id: "1", yachtId: "1", text: "Food & Beverages" },
-      { id: "2", yachtId: "1", text: "Decoration" },
-    ],
-    timeSlots: [
-      { id: "1", yachtId: "1", name: "Morning (8AM - 12PM)", startTime: "08:00", endTime: "12:00", price: 25000, isActive: true, sortOrder: 1 },
-      { id: "2", yachtId: "1", name: "Afternoon (12PM - 4PM)", startTime: "12:00", endTime: "16:00", price: 25000, isActive: true, sortOrder: 2 },
-      { id: "3", yachtId: "1", name: "Sunset (4PM - 8PM)", startTime: "16:00", endTime: "20:00", price: 30000, isActive: true, sortOrder: 3 },
-    ],
-    extraHours: [
-      { id: "1", yachtId: "1", hours: 1, price: 15000, isActive: true },
-      { id: "2", yachtId: "1", hours: 2, price: 25000, isActive: true },
-    ],
-    addons: [
-      { id: "1", yachtId: "1", name: "Balloon Decoration", description: "Beautiful balloon arrangement", price: 5000, isActive: true },
-      { id: "2", yachtId: "1", name: "Birthday Cake", description: "Customized 2kg cake", price: 3500, isActive: true },
-      { id: "3", yachtId: "1", name: "DJ Service", description: "Professional DJ with equipment", price: 15000, isActive: true },
-      { id: "4", yachtId: "1", name: "Photographer", description: "2 hours photo & video coverage", price: 12000, isActive: true },
-    ],
-    reviews: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    name: "Royal Duchess",
-    slug: "royal-duchess",
-    description: "A magnificent 60ft sailing yacht offering an elegant experience. Perfect for intimate celebrations and romantic cruises with stunning views of Goa's coastline.",
-    shortDescription: "60ft sailing yacht for intimate celebrations",
-    capacity: 15,
-    price: 35000,
-    categoryId: "5",
-    featured: true,
-    isActive: true,
-    enableDateField: true,
-    enableGuestField: true,
-    enableTimeSlot: true,
-    enableExtraHours: true,
-    enableAddons: true,
-    minimumBookingHours: 3,
-    location: "Vasco da Gama, Goa",
-    pricePerHour: 12000,
-    images: [
-      { id: "3", yachtId: "2", url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=800", isPrimary: true, sortOrder: 0 },
-      { id: "4", yachtId: "2", url: "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=800", isPrimary: false, sortOrder: 1 },
-    ],
-    amenities: [
-      { id: "5", yachtId: "2", icon: "❄️", name: "Air Conditioning" },
-      { id: "6", yachtId: "2", icon: "🍽️", name: "Dining Area" },
-    ],
-    inclusions: [
-      { id: "3", yachtId: "2", text: "Captain & Crew" },
-      { id: "4", yachtId: "2", text: "Fuel charges" },
-    ],
-    exclusions: [],
-    timeSlots: [
-      { id: "4", yachtId: "2", name: "Sunset Cruise (4PM - 7PM)", startTime: "16:00", endTime: "19:00", price: 35000, isActive: true, sortOrder: 1 },
-      { id: "5", yachtId: "2", name: "Evening (5PM - 9PM)", startTime: "17:00", endTime: "21:00", price: 40000, isActive: true, sortOrder: 2 },
-    ],
-    extraHours: [
-      { id: "3", yachtId: "2", hours: 1, price: 12000, isActive: true },
-    ],
-    addons: [
-      { id: "5", yachtId: "2", name: "Champagne Service", description: "Premium champagne with setup", price: 8000, isActive: true },
-      { id: "6", yachtId: "2", name: "Flower Decoration", description: "Romantic rose petals & flowers", price: 6000, isActive: true },
-    ],
-    reviews: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    name: "Party Barge",
-    slug: "party-barge",
-    description: "The ultimate party vessel! Spacious deck, club-level sound system, and light show. Capacity for 50+ guests - perfect for bachelor/bachelorette parties and large celebrations.",
-    shortDescription: "Ultimate party yacht for 50+ guests",
-    capacity: 50,
-    price: 45000,
-    categoryId: "2",
-    featured: true,
-    isActive: true,
-    enableDateField: true,
-    enableGuestField: true,
-    enableTimeSlot: true,
-    enableExtraHours: true,
-    enableAddons: true,
-    minimumBookingHours: 4,
-    location: "Vasco da Gama, Goa",
-    pricePerHour: 12000,
-    images: [
-      { id: "5", yachtId: "3", url: "https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=800", isPrimary: true, sortOrder: 0 },
-    ],
-    amenities: [
-      { id: "7", yachtId: "3", icon: "🔊", name: "Club Sound System" },
-      { id: "8", yachtId: "3", icon: "💡", name: "Light Show" },
-      { id: "9", yachtId: "3", icon: "🍾", name: "Bar Counter" },
-    ],
-    inclusions: [
-      { id: "5", yachtId: "3", text: "Captain & Crew" },
-      { id: "6", yachtId: "3", text: "Fuel charges" },
-      { id: "7", yachtId: "3", text: "Basic decor" },
-    ],
-    exclusions: [],
-    timeSlots: [
-      { id: "6", yachtId: "3", name: "Full Day (8AM - 8PM)", startTime: "08:00", endTime: "20:00", price: 80000, isActive: true, sortOrder: 1 },
-      { id: "7", yachtId: "3", name: "Night Party (8PM - 1AM)", startTime: "20:00", endTime: "01:00", price: 60000, isActive: true, sortOrder: 2 },
-    ],
-    extraHours: [
-      { id: "4", yachtId: "3", hours: 1, price: 10000, isActive: true },
-    ],
-    addons: [
-      { id: "7", yachtId: "3", name: "DJ Service", description: "Professional DJ", price: 20000, isActive: true },
-      { id: "8", yachtId: "3", name: "Catering", description: "Buffet for 50 guests", price: 25000, isActive: true },
-    ],
-    reviews: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: "4",
-    name: "Corporate Cruiser",
-    slug: "corporate-cruiser",
-    description: "Professional yacht for corporate events, team outings, and business meetings. Equipped with conference facilities, WiFi, and presentation equipment.",
-    shortDescription: "Professional yacht for corporate events",
-    capacity: 30,
-    price: 50000,
-    categoryId: "4",
-    featured: true,
-    isActive: true,
-    enableDateField: true,
-    enableGuestField: true,
-    enableTimeSlot: true,
-    enableExtraHours: false,
-    enableAddons: true,
-    minimumBookingHours: 4,
-    location: "Vasco da Gama, Goa",
-    images: [
-      { id: "6", yachtId: "4", url: "https://images.unsplash.com/photo-1565976469785-0538f6f0e379?w=800", isPrimary: true, sortOrder: 0 },
-    ],
-    amenities: [
-      { id: "10", yachtId: "4", icon: "📶", name: "WiFi" },
-      { id: "11", yachtId: "4", icon: "📺", name: "Projector" },
-      { id: "12", yachtId: "4", icon: "🍽️", name: "Catering Space" },
-    ],
-    inclusions: [
-      { id: "8", yachtId: "4", text: "Captain & Crew" },
-      { id: "9", yachtId: "4", text: "Fuel charges" },
-      { id: "10", yachtId: "4", text: "Basic setup" },
-    ],
-    exclusions: [],
-    timeSlots: [
-      { id: "8", yachtId: "4", name: "Business Day (9AM - 5PM)", startTime: "09:00", endTime: "17:00", price: 50000, isActive: true, sortOrder: 1 },
-    ],
-    addons: [
-      { id: "9", yachtId: "4", name: "Catering", description: "Full day catering", price: 15000, isActive: true },
-      { id: "10", yachtId: "4", name: "Event Coordinator", description: "Professional event manager", price: 10000, isActive: true },
-    ],
-    reviews: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
-
-export const getFeaturedYachts = () => {
-  return getYachts().filter((yacht) => yacht.featured);
+// Categories
+export const getCategories = async (): Promise<YachtCategory[]> => {
+  const categories = await prisma.yachtCategory.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
+  return categories;
 };
 
-export const getYachtBySlug = (slug: string) => {
-  return getYachts().find((yacht) => yacht.slug === slug);
+export const getCategoryBySlug = async (slug: string): Promise<YachtCategory | null> => {
+  return prisma.yachtCategory.findUnique({
+    where: { slug },
+  });
 };
 
-export const getYachtsByCategory = (categorySlug: string) => {
-  const category = getCategories().find((c) => c.slug === categorySlug);
+export const getCategoryById = async (id: string): Promise<YachtCategory | null> => {
+  return prisma.yachtCategory.findUnique({
+    where: { id },
+  });
+};
+
+// Yachts
+export const getYachts = async (): Promise<Yacht[]> => {
+  const yachts = await prisma.yacht.findMany({
+    where: { isActive: true },
+    include: {
+      images: { where: { isPrimary: true }, take: 1 },
+      category: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  
+  // Transform to include all related data
+  const fullYachts = await Promise.all(
+    yachts.map(async (yacht) => {
+      const [
+        allImages,
+        timeSlots,
+        extraHours,
+        addons,
+        inclusions,
+        exclusions,
+        amenities,
+        reviews,
+      ] = await Promise.all([
+        prisma.yachtImage.findMany({ where: { yachtId: yacht.id } }),
+        prisma.timeSlot.findMany({ where: { yachtId: yacht.id } }),
+        prisma.extraHour.findMany({ where: { yachtId: yacht.id } }),
+        prisma.yachtAddon.findMany({ where: { yachtId: yacht.id } }),
+        prisma.yachtInclusion.findMany({ where: { yachtId: yacht.id } }),
+        prisma.yachtExclusion.findMany({ where: { yachtId: yacht.id } }),
+        prisma.yachtAmenity.findMany({ where: { yachtId: yacht.id } }),
+        prisma.review.findMany({ where: { yachtId: yacht.id, isApproved: true } }),
+      ]);
+
+      return {
+        ...yacht,
+        images: allImages,
+        timeSlots,
+        extraHours,
+        addons,
+        inclusions,
+        exclusions,
+        amenities,
+        reviews,
+        pricePerHour: yacht.pricePerHour || yacht.price / 2,
+      };
+    })
+  );
+
+  return fullYachts;
+};
+
+export const getFeaturedYachts = async (): Promise<Yacht[]> => {
+  const yachts = await prisma.yacht.findMany({
+    where: { featured: true, isActive: true },
+    include: {
+      images: { where: { isPrimary: true }, take: 1 },
+      category: true,
+    },
+  });
+  return yachts;
+};
+
+export const getYachtBySlug = async (slug: string): Promise<Yacht | null> => {
+  const yacht = await prisma.yacht.findUnique({
+    where: { slug },
+    include: {
+      images: true,
+      timeSlots: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
+      extraHours: { where: { isActive: true } },
+      addons: { where: { isActive: true } },
+      inclusions: true,
+      exclusions: true,
+      amenities: true,
+      reviews: { where: { isApproved: true } },
+      category: true,
+    },
+  });
+  
+  if (!yacht) return null;
+  
+  return {
+    ...yacht,
+    pricePerHour: yacht.pricePerHour || yacht.price / 2,
+  };
+};
+
+export const getYachtById = async (id: string): Promise<Yacht | null> => {
+  const yacht = await prisma.yacht.findUnique({
+    where: { id },
+    include: {
+      images: true,
+      timeSlots: { where: { isActive: true }, orderBy: { sortOrder: "asc" } },
+      extraHours: { where: { isActive: true } },
+      addons: { where: { isActive: true } },
+      inclusions: true,
+      exclusions: true,
+      amenities: true,
+      reviews: { where: { isApproved: true } },
+      category: true,
+    },
+  });
+  
+  if (!yacht) return null;
+  
+  return {
+    ...yacht,
+    pricePerHour: yacht.pricePerHour || yacht.price / 2,
+  };
+};
+
+export const getYachtsByCategory = async (categorySlug: string): Promise<Yacht[]> => {
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) return [];
-  return getYachts().filter((yacht) => yacht.categoryId === category.id && yacht.isActive);
+  
+  const yachts = await prisma.yacht.findMany({
+    where: { categoryId: category.id, isActive: true },
+    include: {
+      images: { where: { isPrimary: true }, take: 1 },
+      category: true,
+    },
+  });
+  
+  return yachts;
 };
 
-// Demo testimonials
-export const getTestimonials = (): Testimonial[] => [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    location: "Mumbai",
-    content: "Amazing experience! We celebrated our anniversary on the Royal Duchess and it was absolutely magical. The crew was professional and the sunset views were breathtaking.",
-    rating: 5,
-    isActive: true,
-    sortOrder: 1,
-  },
-  {
-    id: "2",
-    name: "Rahul Mehta",
-    location: "Bangalore",
-    content: "Booked the Party Barge for my brother's bachelor party. 50 of us had an unforgettable time! The sound system was incredible and everyone is still talking about it.",
-    rating: 5,
-    isActive: true,
-    sortOrder: 2,
-  },
-  {
-    id: "3",
-    name: "Anita Desai",
-    location: "Pune",
-    content: "Corporate event on the Corporate Cruiser was a huge success. Professional setup, great service. Our team loved it! Will definitely book again.",
-    rating: 5,
-    isActive: true,
-    sortOrder: 3,
-  },
-  {
-    id: "4",
-    name: "Vikram Singh",
-    location: "Delhi",
-    content: "Family birthday celebration on Sea Princess was perfect! Kids loved the experience, adults enjoyed the party. Thank you Goa Yacht World!",
-    rating: 5,
-    isActive: true,
-    sortOrder: 4,
-  },
-];
+// Create/Update/Delete Yachts
+export const createYacht = async (data: Partial<Yacht> & { name: string; slug: string; description: string; capacity: number; price: number; categoryId: string }) => {
+  return prisma.yacht.create({
+    data: {
+      name: data.name,
+      slug: data.slug,
+      description: data.description,
+      shortDescription: data.shortDescription,
+      capacity: data.capacity,
+      price: data.price,
+      categoryId: data.categoryId,
+      location: data.location,
+      featured: data.featured || false,
+      isActive: data.isActive ?? true,
+      enableDateField: data.enableDateField ?? true,
+      enableGuestField: data.enableGuestField ?? true,
+      enableTimeSlot: data.enableTimeSlot ?? true,
+      enableExtraHours: data.enableExtraHours ?? true,
+      enableAddons: data.enableAddons ?? true,
+      pricePerHour: data.pricePerHour,
+      minimumBookingHours: data.minimumBookingHours || 2,
+    },
+  });
+};
 
-// FAQ data
+export const updateYacht = async (id: string, data: Partial<Yacht>) => {
+  return prisma.yacht.update({
+    where: { id },
+    data: {
+      name: data.name,
+      slug: data.slug,
+      description: data.description,
+      shortDescription: data.shortDescription,
+      capacity: data.capacity,
+      price: data.price,
+      categoryId: data.categoryId,
+      location: data.location,
+      featured: data.featured,
+      isActive: data.isActive,
+      enableDateField: data.enableDateField,
+      enableGuestField: data.enableGuestField,
+      enableTimeSlot: data.enableTimeSlot,
+      enableExtraHours: data.enableExtraHours,
+      enableAddons: data.enableAddons,
+      pricePerHour: data.pricePerHour,
+      minimumBookingHours: data.minimumBookingHours,
+    },
+  });
+};
+
+export const deleteYacht = async (id: string) => {
+  return prisma.yacht.delete({
+    where: { id },
+  });
+};
+
+// Testimonials
+export const getTestimonials = async (): Promise<Testimonial[]> => {
+  return prisma.testimonial.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
+};
+
+// Bookings
+export const getBookings = async () => {
+  return prisma.booking.findMany({
+    include: {
+      yacht: true,
+      user: true,
+      items: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const getBookingById = async (id: string) => {
+  return prisma.booking.findUnique({
+    where: { id },
+    include: {
+      yacht: true,
+      user: true,
+      items: true,
+      coupon: true,
+    },
+  });
+};
+
+export const createBooking = async (data: {
+  bookingId: string;
+  yachtId: string;
+  bookingDate: Date;
+  guests: number;
+  basePrice: number;
+  totalAmount: number;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  specialRequests?: string;
+  status?: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+}) => {
+  return prisma.booking.create({
+    data: {
+      bookingId: data.bookingId,
+      yachtId: data.yachtId,
+      bookingDate: data.bookingDate,
+      guests: data.guests,
+      basePrice: data.basePrice,
+      totalAmount: data.totalAmount,
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      customerPhone: data.customerPhone,
+      specialRequests: data.specialRequests,
+      status: data.status || "PENDING",
+      paymentStatus: "PENDING",
+    },
+  });
+};
+
+// Coupons
+export const getCouponByCode = async (code: string) => {
+  const now = new Date();
+  return prisma.coupon.findFirst({
+    where: {
+      code,
+      isActive: true,
+      startsAt: { lte: now },
+      expiresAt: { gte: now },
+    },
+  });
+};
+
+// FAQ data (static for now)
 export const getFAQs = () => [
   {
     question: "What is included in the yacht rental price?",
