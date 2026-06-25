@@ -731,7 +731,7 @@
                                 <p>Google Rating</p>
                             </div>
                         </div>
-                        <div class="stat-card clickable" onclick="showSection('reviews')">
+                        <div class="stat-card clickable" id="happyClientsCard" onclick="toggleHappyClientsEdit()">
                             <div class="stat-icon teal">
                                 <i class="fas fa-users"></i>
                             </div>
@@ -757,6 +757,23 @@
                                 <h3 id="totalCategories">0</h3>
                                 <p>Categories</p>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Happy Clients Inline Edit Panel -->
+                    <div id="happyClientsEditPanel" style="display: none; background: #fff; padding: 20px; border-radius: 12px; margin-top: 20px; border: 2px solid #008080;">
+                        <h3 style="margin-top: 0; color: #008080;"><i class="fas fa-users"></i> Edit Happy Clients Count</h3>
+                        <div style="display: flex; gap: 15px; align-items: end;">
+                            <div style="flex: 1;">
+                                <label style="font-weight: 600; margin-bottom: 8px; display: block;">Number of Happy Clients</label>
+                                <input type="number" id="happyClientsInput" placeholder="Enter number (e.g., 2000)" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                            </div>
+                            <button class="btn btn-primary" onclick="saveHappyClients()" style="padding: 12px 24px;">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <button class="btn btn-outline" onclick="toggleHappyClientsEdit()" style="padding: 12px 20px;">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
                         </div>
                     </div>
                     
@@ -1536,6 +1553,35 @@ Value|Best value for your investment..."></textarea>
                 localStorage.setItem('dashboard_stats', JSON.stringify(settings));
                 document.getElementById(statType + 'Value').textContent = newValue.trim() + '+';
             }
+        }
+
+        // Happy Clients Inline Edit
+        function toggleHappyClientsEdit() {
+            const panel = document.getElementById('happyClientsEditPanel');
+            const isVisible = panel.style.display !== 'none';
+            
+            if (!isVisible) {
+                // Opening the panel - populate current value
+                const currentVal = document.getElementById('happyClientsValue').textContent.replace('+', '').replace(/,/g, '');
+                document.getElementById('happyClientsInput').value = currentVal;
+                document.getElementById('happyClientsInput').focus();
+            }
+            
+            panel.style.display = isVisible ? 'none' : 'block';
+        }
+
+        function saveHappyClients() {
+            const newValue = document.getElementById('happyClientsInput').value.trim();
+            if (newValue === '') {
+                document.getElementById('happyClientsInput').style.borderColor = '#e74c3c';
+                return;
+            }
+            
+            const settings = JSON.parse(localStorage.getItem('dashboard_stats') || '{}');
+            settings['happyClients'] = newValue + '+';
+            localStorage.setItem('dashboard_stats', JSON.stringify(settings));
+            document.getElementById('happyClientsValue').textContent = parseInt(newValue).toLocaleString('en-IN') + '+';
+            toggleHappyClientsEdit();
         }
 
         // Extras Management
