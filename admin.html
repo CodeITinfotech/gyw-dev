@@ -908,7 +908,7 @@
                     <div id="yachtFormSection" style="background: var(--bg-light); padding: 25px; border-radius: 12px; margin-top: 20px; border: 2px solid var(--primary); display: none;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                             <h3 id="yachtFormTitle" style="margin: 0;"><i class="fas fa-plus-circle"></i> Add New Yacht</h3>
-                            <button onclick="cancelYachtForm()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                            <button onclick="closeYachtModal(); cancelYachtForm();" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
                         </div>
                         <input type="hidden" id="editYachtId" value="">
                         
@@ -1025,7 +1025,7 @@
                         </div>
                         
                         <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                            <button class="btn btn-outline" onclick="cancelYachtForm()">
+                            <button class="btn btn-outline" onclick="closeYachtModal(); cancelYachtForm();">
                                 <i class="fas fa-times"></i> Cancel
                             </button>
                             <button class="btn btn-success" onclick="saveYacht()">
@@ -2579,29 +2579,27 @@ Value|Best value for your investment..."></textarea>
             const content = document.getElementById('yachtModalContent');
             const formSection = document.getElementById('yachtFormSection');
             
-            // Clone form content to modal
-            content.innerHTML = formSection.innerHTML;
+            // Copy form HTML to modal
+            content.innerHTML = formSection.outerHTML;
+            
+            // Get references from modal content
+            const catSelect = content.querySelector('#yachtCategory');
+            const title = content.querySelector('#yachtFormTitle');
             
             // Populate category dropdown
             const categories = JSON.parse(localStorage.getItem('yacht_categories') || JSON.stringify(DEFAULT_CATEGORIES));
-            const catSelect = content.querySelector('#yachtCategory');
             catSelect.innerHTML = '<option value="">Select Category</option>' + 
                 categories.sort((a, b) => a.order - b.order).map(c => 
                     `<option value="${c.id}">${c.name}</option>`
                 ).join('');
             
-            const title = content.querySelector('#yachtFormTitle');
-            
             if (yachtId) {
                 // Edit mode
-                console.log('Edit mode for yachtId:', yachtId);
                 title.innerHTML = '<i class="fas fa-edit"></i> Edit Yacht';
                 content.querySelector('#editYachtId').value = yachtId;
                 
-                const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
-                console.log('Total yachts:', yachts.length);
-                const yacht = yachts.find(y => y.id === yachtId);
-                console.log('Found yacht:', yacht);
+                const allYachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
+                const yacht = allYachts.find(y => y.id === yachtId);
                 
                 if (yacht) {
                     content.querySelector('#yachtName').value = yacht.name || '';
@@ -2614,21 +2612,15 @@ Value|Best value for your investment..."></textarea>
                     content.querySelector('#yachtFeatured').checked = yacht.featured || false;
                     content.querySelector('#yachtAmenities').value = yacht.amenities || '';
                     
-                    // Handle extras
-                    selectedExtras = Array.isArray(yacht.extras) ? yacht.extras.map(e => typeof e === 'object' ? e : e) : [];
-                    // Handle questions
+                    selectedExtras = Array.isArray(yacht.extras) ? yacht.extras.map(e => typeof e === 'object' ? e.name || e : e) : [];
                     selectedQuestions = Array.isArray(yacht.questions) ? yacht.questions.map(q => typeof q === 'object' ? q.question || q : q) : [];
-                    // Handle photos
                     currentBannerPhotos = (yacht.banner && yacht.banner.length > 0) ? yacht.banner : 
                                          (yacht.images && yacht.images.length > 0) ? yacht.images : 
                                          ['https://goayachtworld.com/wp-content/uploads/sites/58/2023/06/service-yacht-2.jpg'];
                     currentGalleryPhotos = yacht.gallery || [];
-                    
-                    console.log('Banner photos set to:', currentBannerPhotos);
                 }
             } else {
                 // Add mode
-                console.log('Add mode - clearing form');
                 title.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Yacht';
                 content.querySelector('#editYachtId').value = '';
                 content.querySelector('#yachtName').value = '';
@@ -2647,13 +2639,21 @@ Value|Best value for your investment..."></textarea>
                 currentGalleryPhotos = [];
             }
             
-            // Re-attach event handlers for cloned buttons
-            attachYachtFormHandlers(content);
+            // Render extras and questions
+            renderExtrasCheckboxes();
+            renderQuestionsCheckboxes();
+            renderBannerPhotos();
+            renderYachtGalleryPhotos();
             
             // Show modal
             overlay.style.display = 'block';
             document.body.style.overflow = 'hidden';
         };
+        
+        function closeYachtModal() {
+            document.getElementById('yachtModalOverlay').style.display = 'none';
+            document.body.style.overflow = '';
+        }
         
         function attachYachtFormHandlers(container) {
             // Attach handlers for the modal content
@@ -2957,15 +2957,20 @@ Value|Best value for your investment..."></textarea>
         }
 
         function saveYacht() {
-            const name = document.getElementById('yachtName').value.trim();
-            const type = document.getElementById('yachtCategory').value;
-            const location = document.getElementById('yachtLocation').value.trim() || 'Goa, India';
-            const description = document.getElementById('yachtDescription').value.trim();
-            const capacity = parseInt(document.getElementById('yachtCapacity').value) || 8;
-            const price = parseInt(document.getElementById('yachtPrice').value) || 15000;
-            const video = document.getElementById('yachtVideo').value.trim();
-            const featured = document.getElementById('yachtFeatured').checked;
-            const amenities = document.getElementById('yachtAmenities').value.trim();
+            // Get form values from modal if open, otherwise from inline form
+            const modal = document.getElementById('yachtModalOverlay');
+            const isModalOpen = modal && modal.style.display !== 'none';
+            const container = isModalOpen ? modal.querySelector('#yachtModalContent') : document;
+            
+            const name = container.querySelector('#yachtName').value.trim();
+            const type = container.querySelector('#yachtCategory').value;
+            const location = container.querySelector('#yachtLocation').value.trim() || 'Goa, India';
+            const description = container.querySelector('#yachtDescription').value.trim();
+            const capacity = parseInt(container.querySelector('#yachtCapacity').value) || 8;
+            const price = parseInt(container.querySelector('#yachtPrice').value) || 15000;
+            const video = container.querySelector('#yachtVideo').value.trim();
+            const featured = container.querySelector('#yachtFeatured').checked;
+            const amenities = container.querySelector('#yachtAmenities').value.trim();
             
             if (!name) {
                 showAlert('Yacht name is required', 'error');
@@ -2977,7 +2982,7 @@ Value|Best value for your investment..."></textarea>
             }
             
             const yachts = JSON.parse(localStorage.getItem('yachts') || JSON.stringify(DEFAULT_YACHTS));
-            const editId = document.getElementById('editYachtId').value;
+            const editId = container.querySelector('#editYachtId').value;
             
             const yachtData = {
                 name, type, location, description, capacity, price, video, featured, amenities,
@@ -3001,6 +3006,7 @@ Value|Best value for your investment..."></textarea>
             }
             
             localStorage.setItem('yachts', JSON.stringify(yachts));
+            closeYachtModal();
             cancelYachtForm();
             loadYachtsEditor();
             showAlert('Yacht saved successfully!', 'success');
@@ -3008,6 +3014,10 @@ Value|Best value for your investment..."></textarea>
 
         function cancelYachtForm() {
             document.getElementById('yachtFormSection').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        
+        function closeYachtModal() {
             document.getElementById('yachtModalOverlay').style.display = 'none';
             document.body.style.overflow = '';
         }
@@ -3326,8 +3336,8 @@ Value|Best value for your investment..."></textarea>
     <!-- Yacht Form Modal Overlay -->
     <div id="yachtModalOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; overflow-y: auto; padding: 20px;">
         <div style="max-width: 900px; margin: 40px auto; background: #fff; border-radius: 16px; position: relative;">
-            <button onclick="cancelYachtForm()" style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10;">&times;</button>
-            <div id="yachtModalContent" style="max-height: calc(100vh - 100px); overflow-y: auto;"></div>
+            <button onclick="closeYachtModal()" style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10;">&times;</button>
+            <div id="yachtModalContent"></div>
         </div>
     </div>
 </body>
