@@ -1500,6 +1500,7 @@ Value|Best value for your investment..."></textarea>
             
             const loginScreen = document.getElementById('loginScreen');
             const adminDashboard = document.getElementById('adminDashboard');
+            document.body.classList.add('logged-in');
 
             if (loginScreen) {
                 loginScreen.style.display = 'none';
@@ -3532,18 +3533,20 @@ Value|Best value for your investment..."></textarea>
             var modal = document.getElementById('yachtModalOverlay');
             if (modal) {
                 modal.style.display = 'none';
-                console.log('Hidden yachtModalOverlay');
+                modal.style.visibility = 'hidden';
+                modal.style.opacity = '0';
             }
             var formSection = document.getElementById('yachtFormSection');
             if (formSection) {
                 formSection.style.display = 'none';
-                console.log('Hidden yachtFormSection');
+                formSection.style.visibility = 'hidden';
+                formSection.style.opacity = '0';
             }
-            
-            // Debug: log what's happening with the modals
-            console.log('Page loaded, checking modals...');
-            console.log('yachtModalOverlay display:', document.getElementById('yachtModalOverlay')?.style.display);
-            console.log('yachtFormSection display:', document.getElementById('yachtFormSection')?.style.display);
+            // Clear modal content
+            var modalContent = document.getElementById('yachtModalContent');
+            if (modalContent) modalContent.innerHTML = '';
+            // Debug
+            console.log('Page loaded, modal status:', modal?.style.display, formSection?.style.display);
         })();
     </script>
 </body>
