@@ -195,6 +195,9 @@
             position: relative;
         }
         .password-toggle {
+            background: none;
+            border: none;
+            padding: 8px;
             position: absolute;
             right: 15px;
             top: 50%;
@@ -781,9 +784,9 @@
             
             <div class="form-group password-group">
                 <input type="password" id="adminPassword" placeholder="Enter Admin Password" autocomplete="current-password">
-                <span class="password-toggle" onclick="togglePasswordVisibility()">
+                <button type="button" class="password-toggle" onclick="togglePasswordVisibility(); return false;">
                     <i class="fas fa-eye" id="passwordToggleIcon"></i>
-                </span>
+                </button>
             </div>
             
             <button class="btn-login" onclick="adminLogin()">
@@ -1051,7 +1054,7 @@
                                     <option value="">All Categories</option>
                                 </select>
                             </div>
-                            <span id="yachtCount" style="color: var(--text-light); font-size: 14px;"></span>
+                            <span id="yachtCount" style="color: var(--text-light); font-size: 14px;"></button>
                             <button class="btn btn-sm btn-primary" onclick="window.showYachtForm()">
                                 <i class="fas fa-plus"></i> Add Yacht
                             </button>
@@ -1131,7 +1134,7 @@
                             <div class="form-group">
                                 <label style="display: flex; align-items: center; gap: 10px;">
                                     <input type="checkbox" id="yachtFeatured">
-                                    <span><strong>Featured</strong> - Show on featured section</span>
+                                    <span><strong>Featured</strong> - Show on featured section</button>
                                 </label>
                             </div>
                         </div>
@@ -1171,7 +1174,7 @@
                                             <i class="fas fa-upload"></i> Upload Photo
                                             <input type="file" id="bannerFileInput" accept="image/*" onchange="handleBannerUpload(this)" style="display: none;">
                                         </label>
-                                        <span style="font-size: 11px; color: #999;">JPG, PNG, WebP</span>
+                                        <span style="font-size: 11px; color: #999;">JPG, PNG, WebP</button>
                                     </div>
                                     <div id="bannerPhotosList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                                 </div>
@@ -1187,7 +1190,7 @@
                                             <i class="fas fa-upload"></i> Upload Photo
                                             <input type="file" id="galleryFileInput" accept="image/*" onchange="handleGalleryUpload(this)" style="display: none;">
                                         </label>
-                                        <span style="font-size: 11px; color: #999;">JPG, PNG, WebP</span>
+                                        <span style="font-size: 11px; color: #999;">JPG, PNG, WebP</button>
                                     </div>
                                     <div id="galleryPhotosList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px;"></div>
                                 </div>
@@ -1540,7 +1543,7 @@ Value|Best value for your investment..."></textarea>
                             </div>
                             <label class="toggle-switch">
                                 <input type="checkbox" id="heroAutoScroll" checked onchange="saveHeroSettings()">
-                                <span class="toggle-slider"></span>
+                                <span class="toggle-slider"></button>
                             </label>
                         </div>
                     </div>
@@ -2002,7 +2005,7 @@ Value|Best value for your investment..."></textarea>
                                 <strong>${extra.name}</strong>
                                 <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${isActive ? '#27ae60' : '#e74c3c'}; color: #fff;">
                                     ${isActive ? 'Active' : 'Inactive'}
-                                </span>
+                                </button>
                             </div>
                             <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">
                                 ${extra.price === 0 ? 'As per requirement' : 'upto ₹' + extra.price.toLocaleString('en-IN') + '/-'}
@@ -2517,13 +2520,13 @@ Value|Best value for your investment..."></textarea>
                                     <h4 style="margin: 0; color: var(--text);">${r.name}</h4>
                                     <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${isActive ? '#27ae60' : '#e74c3c'}; color: #fff;">
                                         ${isActive ? 'Active' : 'Inactive'}
-                                    </span>
+                                    </button>
                                 </div>
-                                <span style="color: #888; font-size: 0.85rem;"><i class="fas fa-clock"></i> ${r.date}</span>
+                                <span style="color: #888; font-size: 0.85rem;"><i class="fas fa-clock"></i> ${r.date}</button>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="color: #ffc107;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                            <span style="color: #ffc107;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</button>
                         </div>
                     </div>
                     <p style="margin: 0 0 15px 0; color: var(--text-light); line-height: 1.6;">${r.text.length > 150 ? r.text.substring(0, 150) + '...' : r.text}</p>
@@ -2698,10 +2701,10 @@ Value|Best value for your investment..."></textarea>
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <i class="fas ${cat.icon || 'fa-folder'}" style="color: var(--primary); font-size: 20px;"></i>
                             <div>
-                                <span style="font-weight: 600; font-size: 15px;">${cat.name}</span>
+                                <span style="font-weight: 600; font-size: 15px;">${cat.name}</button>
                                 <span style="margin-left: 10px; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: ${isActive ? '#27ae60' : '#e74c3c'}; color: #fff;">
                                     ${isActive ? 'Active' : 'Inactive'}
-                                </span>
+                                </button>
                             </div>
                         </div>
                         <div style="display: flex; gap: 8px;">
@@ -2857,16 +2860,16 @@ Value|Best value for your investment..."></textarea>
                             </div>
                         </td>
                         <td style="padding: 15px; text-align: center;">
-                            <span style="background: #e3f2fd; padding: 4px 12px; border-radius: 20px; font-weight: 600;">${yacht.capacity} pax</span>
+                            <span style="background: #e3f2fd; padding: 4px 12px; border-radius: 20px; font-weight: 600;">${yacht.capacity} pax</button>
                         </td>
                         <td style="padding: 15px; text-align: center;">
-                            <span style="color: #27ae60; font-weight: 700;">₹${yacht.price.toLocaleString('en-IN')}</span>
-                            <span style="color: #888; font-size: 12px;">/hr</span>
+                            <span style="color: #27ae60; font-weight: 700;">₹${yacht.price.toLocaleString('en-IN')}</button>
+                            <span style="color: #888; font-size: 12px;">/hr</button>
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <span style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; ${isDisabled ? 'background: #ffebee; color: #e74c3c;' : 'background: #e8f5e9; color: #27ae60;'}">
                                 ${isDisabled ? 'Inactive' : 'Active'}
-                            </span>
+                            </button>
                         </td>
                         <td style="padding: 15px; text-align: center;">
                             <button class="btn btn-sm btn-primary" onclick="window.showYachtForm('${yacht.id}')" style="margin-right: 8px;">
@@ -3060,7 +3063,7 @@ Value|Best value for your investment..."></textarea>
                         <div class="form-group" style="margin-top: 15px;">
                             <label style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="modalYachtFeatured" ${featured ? 'checked' : ''}>
-                                <span><strong>Featured</strong></span>
+                                <span><strong>Featured</strong></button>
                             </label>
                         </div>
                     </div>
@@ -3291,8 +3294,8 @@ Value|Best value for your investment..."></textarea>
                 return `
                 <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
                     <input type="checkbox" value="${extra.name}" ${isChecked ? 'checked' : ''} onchange="toggleExtraCheckbox(this)">
-                    <span>${extra.name}</span>
-                    <span style="color: var(--primary); font-weight: 600; font-size: 12px;">${priceDisplay}</span>
+                    <span>${extra.name}</button>
+                    <span style="color: var(--primary); font-weight: 600; font-size: 12px;">${priceDisplay}</button>
                 </label>
             `}).join('');
         }
@@ -3313,7 +3316,7 @@ Value|Best value for your investment..."></textarea>
                 <label style="display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; background: #fff; border: 1px solid #ddd; border-radius: 6px; cursor: pointer;">
                     <input type="checkbox" value="${q.question}" ${isChecked ? 'checked' : ''} onchange="toggleQuestionCheckbox(this)" style="margin-top: 3px;">
                     <div>
-                        <span style="font-size: 13px;">${q.question}</span>
+                        <span style="font-size: 13px;">${q.question}</button>
                         <p style="margin: 3px 0 0 0; font-size: 11px; color: #666;">${q.answer.substring(0, 80)}${q.answer.length > 80 ? '...' : ''}</p>
                     </div>
                 </label>
@@ -3747,10 +3750,10 @@ Value|Best value for your investment..."></textarea>
                             </p>
                             <span style="display: inline-block; background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-top: 8px;">
                                 ${subjectLabels[s.subject] || s.subject}
-                            </span>
+                            </button>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 0.8rem; color: #999;">${new Date(s.date).toLocaleString()}</span>
+                            <span style="font-size: 0.8rem; color: #999;">${new Date(s.date).toLocaleString()}</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteContact(${i})" style="margin-top: 8px; padding: 5px 10px;">
                                 <i class="fas fa-trash"></i>
                             </button>
