@@ -3513,5 +3513,16 @@ Value|Best value for your investment..."></textarea>
             <div id="yachtModalContent"></div>
         </div>
     </div>
+
+    <!-- Ensure yacht modal is hidden on page load -->
+    <script>
+        (function() {
+            // Immediately hide yacht modal and form on page load
+            var modal = document.getElementById('yachtModalOverlay');
+            if (modal) modal.style.display = 'none';
+            var formSection = document.getElementById('yachtFormSection');
+            if (formSection) formSection.style.display = 'none';
+        })();
+    </script>
 </body>
 </html>
