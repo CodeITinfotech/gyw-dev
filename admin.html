@@ -49,6 +49,7 @@
             visibility: hidden !important;
             opacity: 0 !important;
             pointer-events: none !important;
+            z-index: -1 !important;
         }
         
         body.logged-in .admin-dashboard {
@@ -84,18 +85,6 @@
 
         body:not(.logged-in) .login-screen {
             background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
-        }
-
-        body.logged-in .login-screen {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-
-        body.logged-in .admin-dashboard {
-            display: block !important;
-            visibility: visible !important;
         }
 
         .login-box {
