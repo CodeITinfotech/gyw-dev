@@ -1622,7 +1622,7 @@ Value|Best value for your investment..."></textarea>
 
         // Admin Login
         function adminLogin() {
-            alert('adminLogin() called!');
+            console.log('adminLogin function START');
             try {
                 // Check if account is locked
                 const lockData = JSON.parse(localStorage.getItem('adminLockData') || 'null');
@@ -1647,29 +1647,30 @@ Value|Best value for your investment..."></textarea>
                 
                 if (password.trim() === savedPassword) {
                     // Success - reset failed attempts
+                    console.log('PASSWORD MATCH - SUCCESS!');
                     localStorage.removeItem('adminFailedAttempts');
                     localStorage.removeItem('adminLockData');
                     if (errorMsg) errorMsg.style.display = 'none';
                     sessionStorage.setItem('adminLoggedIn', 'true');
                     showToast('Login successful!', 'success');
                     
-                    // Force hide login screen and box via JavaScript
+                    // Force hide login screen and box via JavaScript with !important
                     const loginScreen = document.getElementById('loginScreen');
                     const loginBox = document.querySelector('.login-box');
                     if (loginScreen) {
-                        loginScreen.style.display = 'none';
-                        loginScreen.style.visibility = 'hidden';
-                        loginScreen.style.opacity = '0';
-                        loginScreen.style.pointerEvents = 'none';
-                        loginScreen.style.position = 'absolute';
-                        loginScreen.style.zIndex = '-1';
+                        loginScreen.style.setProperty('display', 'none', 'important');
+                        loginScreen.style.setProperty('visibility', 'hidden', 'important');
+                        loginScreen.style.setProperty('opacity', '0', 'important');
+                        loginScreen.style.setProperty('pointer-events', 'none', 'important');
+                        loginScreen.style.setProperty('position', 'absolute', 'important');
+                        loginScreen.style.setProperty('z-index', '-1', 'important');
                     }
                     if (loginBox) {
-                        loginBox.style.display = 'none';
-                        loginBox.style.visibility = 'hidden';
-                        loginBox.style.opacity = '0';
-                        loginBox.style.pointerEvents = 'none';
-                        loginBox.style.zIndex = '-1';
+                        loginBox.style.setProperty('display', 'none', 'important');
+                        loginBox.style.setProperty('visibility', 'hidden', 'important');
+                        loginBox.style.setProperty('opacity', '0', 'important');
+                        loginBox.style.setProperty('pointer-events', 'none', 'important');
+                        loginBox.style.setProperty('z-index', '-1', 'important');
                     }
                     
                     showDashboard();
