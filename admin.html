@@ -788,7 +788,7 @@
                 </button>
             </div>
             
-            <form id="loginForm" onsubmit="adminLogin(); return false;">
+            <form id="loginForm" onsubmit="console.log('Form submitted!');adminLogin(); return false;">
                 <button type="submit" class="btn-login">
                     <i class="fas fa-lock"></i> Login
                 </button>
@@ -1625,6 +1625,7 @@ Value|Best value for your investment..."></textarea>
         // Admin Login
         function adminLogin() {
             console.log('adminLogin function START');
+            window.adminLoginCalled = true;
             try {
                 // Check if account is locked
                 const lockData = JSON.parse(localStorage.getItem('adminLockData') || 'null');
