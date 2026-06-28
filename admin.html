@@ -80,6 +80,10 @@
             z-index: 9999 !important;
         }
 
+        body:not(.logged-in) .login-screen {
+            background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
+        }
+
         body.logged-in .login-screen {
             display: none !important;
             visibility: hidden !important;
@@ -104,13 +108,15 @@
         }
 
         .login-box {
-            background: var(--white);
+            background: #ffffff;
             padding: 50px;
             border-radius: 24px;
             width: 100%;
             max-width: 450px;
             box-shadow: 0 25px 70px rgba(0,0,0,0.3);
             text-align: center;
+            position: relative;
+            z-index: 10000;
         }
 
         .login-box h1 {
