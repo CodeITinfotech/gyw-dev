@@ -1654,23 +1654,10 @@ Value|Best value for your investment..."></textarea>
                     sessionStorage.setItem('adminLoggedIn', 'true');
                     showToast('Login successful!', 'success');
                     
-                    // Force hide login screen and box via JavaScript with !important
+                    // Completely remove login elements from DOM
                     const loginScreen = document.getElementById('loginScreen');
-                    const loginBox = document.querySelector('.login-box');
                     if (loginScreen) {
-                        loginScreen.style.setProperty('display', 'none', 'important');
-                        loginScreen.style.setProperty('visibility', 'hidden', 'important');
-                        loginScreen.style.setProperty('opacity', '0', 'important');
-                        loginScreen.style.setProperty('pointer-events', 'none', 'important');
-                        loginScreen.style.setProperty('position', 'absolute', 'important');
-                        loginScreen.style.setProperty('z-index', '-1', 'important');
-                    }
-                    if (loginBox) {
-                        loginBox.style.setProperty('display', 'none', 'important');
-                        loginBox.style.setProperty('visibility', 'hidden', 'important');
-                        loginBox.style.setProperty('opacity', '0', 'important');
-                        loginBox.style.setProperty('pointer-events', 'none', 'important');
-                        loginBox.style.setProperty('z-index', '-1', 'important');
+                        loginScreen.remove();
                     }
                     
                     showDashboard();
