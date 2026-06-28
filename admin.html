@@ -1613,6 +1613,7 @@ Value|Best value for your investment..."></textarea>
         function checkAuth() {
             if (!checkAdminAccess()) return;
             
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
             if (isLoggedIn === 'true') {
                 showDashboard();
             }
